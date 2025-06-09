@@ -168,6 +168,31 @@ func completeExistingEnvVarName(
 	return candidates, nil
 }
 
+func completeExistingRefEnvVarName(
+	ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error) {
+	// this is quite copy paste (just changed the flag name from --env to --ref-env), but I think I'm feeling lazy
+	envNamePtr := ptrFromMap[string](cmdCtx.Flags, "--ref-env")
+	if envNamePtr == nil {
+		return nil, nil
+	}
+
+	vars, err := es.VarList(ctx, *envNamePtr)
+	if err != nil {
+		return nil, fmt.Errorf("could not get env for completion: %w", err)
+	}
+	candidates := &completion.Candidates{
+		Type:   completion.Type_ValuesDescriptions,
+		Values: nil,
+	}
+	for _, v := range vars {
+		candidates.Values = append(candidates.Values, completion.Candidate{
+			Name:        v.Name,
+			Description: v.Comment,
+		})
+	}
+	return candidates, nil
+}
+
 func varNameFlag() wargcore.Flag {
 	return flag.New(
 		"Env var name",

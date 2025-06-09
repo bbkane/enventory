@@ -112,6 +112,20 @@ func TestMainCompletions(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:        "varRefCreate",
+			args:        []string{"var", "ref", "create", "--db-path", dbName, "--ref-env", envName01, "--ref-var"},
+			expectedErr: false,
+			expectedCandidates: &completion.Candidates{
+				Type: completion.Type_ValuesDescriptions,
+				Values: []completion.Candidate{
+					{
+						Name:        envVarName01,
+						Description: makeComment(envVarName01),
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range completionTests {
 		t.Run(tt.name, func(t *testing.T) {

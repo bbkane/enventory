@@ -34,7 +34,7 @@ func VarRefCreateCmd() wargcore.Command {
 			"Variable we're referencing",
 			scalar.String(),
 			flag.Required(),
-			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingEnvVarName)),
+			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingRefEnvVarName)),
 		),
 		command.FlagMap(commonCreateFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
