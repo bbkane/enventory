@@ -9,7 +9,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/sqlc-dev/sqlc v1.29.0
 	github.com/stretchr/testify v1.10.0
-	go.bbkane.com/warg v0.0.31
+	go.bbkane.com/warg v0.0.32
 	golang.org/x/term v0.32.0
 	modernc.org/sqlite v1.37.1
 )
