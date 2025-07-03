@@ -21,11 +21,11 @@ func EnvCreateCmd() wargcore.Command {
 		withEnvService(func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
 			var env *models.Env
 			err := es.WithTx(ctx, func(es models.EnvService) error {
-				newEnv, err := es.EnvCreate(ctx, createArgs)
+				var err error
+				env, err = es.EnvCreate(ctx, createArgs)
 				if err != nil {
 					return err
 				}
-				env = newEnv
 				return nil
 			})
 			if err != nil {
@@ -67,10 +67,15 @@ func EnvDeleteCmd() wargcore.Command {
 
 func envDelete(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
 	name := mustGetNameArg(cmdCtx.Flags)
-
-	err := es.EnvDelete(ctx, name)
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		err := es.EnvDelete(ctx, name)
+		if err != nil {
+			return fmt.Errorf("could not delete env: %s: %w", name, err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("could not delete env: %s: %w", name, err)
+		return err
 	}
 
 	fmt.Fprintf(cmdCtx.Stdout, "deleted: %s\n", name)
@@ -89,7 +94,15 @@ func EnvListCmd() wargcore.Command {
 }
 
 func envList(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
-	envs, err := es.EnvList(ctx)
+	var envs []models.Env
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		var err error
+		envs, err = es.EnvList(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}
@@ -125,17 +138,29 @@ func envShow(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context)
 	timezone := mustGetTimezoneArg(cmdCtx.Flags)
 	width := mustGetWidthArg(cmdCtx.Flags)
 
-	env, err := es.EnvShow(ctx, name)
-	if err != nil {
-		return fmt.Errorf("could not show env: %s: %w", name, err)
-	}
+	var env *models.Env
+	var localvars []models.Var
+	var refs []models.VarRef
+	var referencedVars []models.Var
 
-	localvars, err := es.VarList(ctx, name)
-	if err != nil {
-		return err
-	}
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		var err error
+		env, err = es.EnvShow(ctx, name)
+		if err != nil {
+			return fmt.Errorf("could not show env: %s: %w", name, err)
+		}
 
-	refs, referencedVars, err := es.VarRefList(ctx, name)
+		localvars, err = es.VarList(ctx, name)
+		if err != nil {
+			return err
+		}
+
+		refs, referencedVars, err = es.VarRefList(ctx, name)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}
@@ -172,16 +197,22 @@ func envUpdate(ctx context.Context, es models.EnvService, cmdCtx wargcore.Contex
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.EnvUpdate(ctx, name, models.EnvUpdateArgs{
-		Comment:    comment,
-		CreateTime: createTime,
-		Name:       newName,
-		UpdateTime: updateTime,
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		err := es.EnvUpdate(ctx, name, models.EnvUpdateArgs{
+			Comment:    comment,
+			CreateTime: createTime,
+			Name:       newName,
+			UpdateTime: updateTime,
+		})
+		if err != nil {
+			return fmt.Errorf("could not update env: %w", err)
+		}
+		return nil
 	})
-
 	if err != nil {
-		return fmt.Errorf("could not update env: %w", err)
+		return err
 	}
+
 	finalName := name
 	if newName != nil {
 		finalName = *newName
