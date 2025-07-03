@@ -21,7 +21,7 @@ func buildApp() *wargcli.App {
 			section.NewSection(
 				"env",
 				"Environment commands",
-				section.Command("create", cli.EnvCreateCmd2()),
+				section.Command("create", cli.EnvCreateCmd()),
 				section.Command("delete", cli.EnvDeleteCmd()),
 				section.Command("list", cli.EnvListCmd()),
 				section.Command("update", cli.EnvUpdateCmd()),

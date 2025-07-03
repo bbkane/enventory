@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 )
@@ -88,6 +89,13 @@ type VarRefCreateArgs struct {
 
 // -- interface
 
+type DBTX interface {
+	ExecContext(context.Context, string, ...interface{}) (sql.Result, error)
+	PrepareContext(context.Context, string) (*sql.Stmt, error)
+	QueryContext(context.Context, string, ...interface{}) (*sql.Rows, error)
+	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
+}
+
 type EnvService interface {
 	EnvCreate(ctx context.Context, args EnvCreateArgs) (*Env, error)
 	EnvDelete(ctx context.Context, name string) error
@@ -105,4 +113,6 @@ type EnvService interface {
 	VarRefDelete(ctx context.Context, envName string, name string) error
 	VarRefList(ctx context.Context, envName string) ([]VarRef, []Var, error)
 	VarRefShow(ctx context.Context, envName string, name string) (*VarRef, *Var, error)
+
+	WithTx(ctx context.Context, fn func(es EnvService) error) error
 }

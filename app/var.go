@@ -11,7 +11,7 @@ import (
 )
 
 func (e *EnvService) varFindByID(ctx context.Context, id int64) (*models.Var, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	sqlcVar, err := queries.VarFindByID(ctx, id)
 	if err != nil {
@@ -29,7 +29,7 @@ func (e *EnvService) varFindByID(ctx context.Context, id int64) (*models.Var, er
 }
 
 func (e *EnvService) varFindID(ctx context.Context, envName string, name string) (int64, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, envName)
 	if err != nil {
@@ -49,7 +49,7 @@ func (e *EnvService) varFindID(ctx context.Context, envName string, name string)
 }
 
 func (e *EnvService) VarCreate(ctx context.Context, args models.VarCreateArgs) (*models.Var, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, args.EnvName)
 	if err != nil {
@@ -79,7 +79,7 @@ func (e *EnvService) VarCreate(ctx context.Context, args models.VarCreateArgs) (
 }
 
 func (e *EnvService) VarDelete(ctx context.Context, envName string, name string) error {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, envName)
 	if err != nil {
@@ -100,7 +100,7 @@ func (e *EnvService) VarDelete(ctx context.Context, envName string, name string)
 }
 
 func (e *EnvService) VarList(ctx context.Context, envName string) ([]models.Var, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, envName)
 	if err != nil {
@@ -127,7 +127,7 @@ func (e *EnvService) VarList(ctx context.Context, envName string) ([]models.Var,
 }
 
 func (e *EnvService) VarShow(ctx context.Context, envName string, name string) (*models.Var, []models.VarRef, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, envName)
 	if err != nil {
@@ -185,7 +185,7 @@ func (e *EnvService) VarUpdate(ctx context.Context, envName string, name string,
 		newEnvID = &tmp
 	}
 
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	rowsAffected, err := queries.VarUpdate(ctx, sqlcgen.VarUpdateParams{
 		EnvID:      newEnvID,

@@ -9,7 +9,7 @@ import (
 )
 
 func (e *EnvService) VarRefCreate(ctx context.Context, args models.VarRefCreateArgs) (*models.VarRef, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, args.EnvName)
 	if err != nil {
@@ -44,7 +44,7 @@ func (e *EnvService) VarRefCreate(ctx context.Context, args models.VarRefCreateA
 }
 
 func (e *EnvService) VarRefDelete(ctx context.Context, envName string, name string) error {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, envName)
 	if err != nil {
@@ -65,7 +65,7 @@ func (e *EnvService) VarRefDelete(ctx context.Context, envName string, name stri
 }
 
 func (e *EnvService) VarRefList(ctx context.Context, envName string) ([]models.VarRef, []models.Var, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, envName)
 	if err != nil {
@@ -105,7 +105,7 @@ func (e *EnvService) VarRefList(ctx context.Context, envName string) ([]models.V
 
 func (e *EnvService) VarRefShow(ctx context.Context, envName string, name string) (*models.VarRef, *models.Var, error) {
 
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	envID, err := e.envFindID(ctx, envName)
 	if err != nil {

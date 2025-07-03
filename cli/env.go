@@ -14,15 +14,24 @@ import (
 	"go.bbkane.com/warg/wargcore"
 )
 
-func EnvCreateCmd2() wargcore.Command {
+func EnvCreateCmd() wargcore.Command {
 	var createArgs models.EnvCreateArgs
 	return command.New(
 		"Create an environment",
 		withEnvService(func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
-			env, err := es.EnvCreate(ctx, createArgs)
+			var env *models.Env
+			err := es.WithTx(ctx, func(es models.EnvService) error {
+				newEnv, err := es.EnvCreate(ctx, createArgs)
+				if err != nil {
+					return err
+				}
+				env = newEnv
+				return nil
+			})
 			if err != nil {
 				return fmt.Errorf("could not create env: %w", err)
 			}
+
 			fmt.Fprintf(cmdCtx.Stdout, "Created env: %s\n", env.Name)
 			return nil
 		}),

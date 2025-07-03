@@ -24,7 +24,7 @@ func mapErrEnvNotFound(e error) error {
 
 // envFindID looks for en env's SQLite ID and returns a wrapped ErrEnvNotFound or a sql error
 func (e *EnvService) envFindID(ctx context.Context, envName string) (int64, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 	envID, err := queries.EnvFindID(ctx, envName)
 	if errors.Is(err, sql.ErrNoRows) {
 		err = models.ErrEnvNotFound
@@ -36,9 +36,9 @@ func (e *EnvService) envFindID(ctx context.Context, envName string) (int64, erro
 }
 
 func (e *EnvService) EnvCreate(ctx context.Context, args models.EnvCreateArgs) (*models.Env, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
-	createdEnvID, err := queries.EnvCreate(ctx, sqlcgen.EnvCreateParams{
+	createdEnvRow, err := queries.EnvCreate(ctx, sqlcgen.EnvCreateParams{
 		Name:       args.Name,
 		Comment:    args.Comment,
 		CreateTime: models.TimeToString(args.CreateTime),
@@ -50,15 +50,15 @@ func (e *EnvService) EnvCreate(ctx context.Context, args models.EnvCreateArgs) (
 	}
 
 	return &models.Env{
-		Name:       createdEnvID.Name,
-		Comment:    createdEnvID.Comment,
-		CreateTime: models.StringToTimeMust(createdEnvID.CreateTime),
-		UpdateTime: models.StringToTimeMust(createdEnvID.UpdateTime),
+		Name:       createdEnvRow.Name,
+		Comment:    createdEnvRow.Comment,
+		CreateTime: models.StringToTimeMust(createdEnvRow.CreateTime),
+		UpdateTime: models.StringToTimeMust(createdEnvRow.UpdateTime),
 	}, nil
 }
 
 func (e *EnvService) EnvDelete(ctx context.Context, name string) error {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	rowsAffected, err := queries.EnvDelete(ctx, name)
 	if err != nil {
@@ -71,7 +71,7 @@ func (e *EnvService) EnvDelete(ctx context.Context, name string) error {
 }
 
 func (e *EnvService) EnvList(ctx context.Context) ([]models.Env, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	sqlcEnvs, err := queries.EnvList(ctx)
 	if err != nil {
@@ -93,7 +93,7 @@ func (e *EnvService) EnvList(ctx context.Context) ([]models.Env, error) {
 
 func (e *EnvService) EnvUpdate(ctx context.Context, name string, args models.EnvUpdateArgs) error {
 
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	rowsAffected, err := queries.EnvUpdate(ctx, sqlcgen.EnvUpdateParams{
 		NewName:    args.Name,
@@ -114,7 +114,7 @@ func (e *EnvService) EnvUpdate(ctx context.Context, name string, args models.Env
 }
 
 func (e *EnvService) EnvShow(ctx context.Context, name string) (*models.Env, error) {
-	queries := sqlcgen.New(e.db)
+	queries := sqlcgen.New(e.dbtx)
 
 	sqlcEnv, err := queries.EnvShow(ctx, name)
 
