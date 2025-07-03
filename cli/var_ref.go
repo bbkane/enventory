@@ -56,21 +56,26 @@ func varRefCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.
 
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 
-	_, err := es.VarRefCreate(
-		ctx,
-		models.VarRefCreateArgs{
-			EnvName:    envName,
-			Name:       name,
-			Comment:    commonCreateArgs.Comment,
-			CreateTime: commonCreateArgs.CreateTime,
-			UpdateTime: commonCreateArgs.UpdateTime,
-			RefEnvName: refEnvName,
-			RefVarName: refVarName,
-		},
-	)
-
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		_, err := es.VarRefCreate(
+			ctx,
+			models.VarRefCreateArgs{
+				EnvName:    envName,
+				Name:       name,
+				Comment:    commonCreateArgs.Comment,
+				CreateTime: commonCreateArgs.CreateTime,
+				UpdateTime: commonCreateArgs.UpdateTime,
+				RefEnvName: refEnvName,
+				RefVarName: refVarName,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("couldn't create env ref: %s: %w", name, err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("couldn't create env ref: %s: %w", name, err)
+		return err
 	}
 
 	fmt.Fprintf(cmdCtx.Stdout, "Created env ref: %s: %s\n", envName, name)
@@ -97,10 +102,17 @@ func varRefDeleteRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.VarRefDelete(ctx, envName, name)
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		err := es.VarRefDelete(ctx, envName, name)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}
+
 	fmt.Fprintf(cmdCtx.Stdout, "Deleted %s: %s\n", envName, name)
 	return nil
 }
@@ -131,10 +143,20 @@ func varRefShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Co
 	format := cmdCtx.Flags["--format"].(string)
 	width := mustGetWidthArg(cmdCtx.Flags)
 
-	envRef, envVar, err := es.VarRefShow(ctx, envName, name)
+	var envRef *models.VarRef
+	var envVar *models.Var
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		var err error
+		envRef, envVar, err = es.VarRefShow(ctx, envName, name)
+		if err != nil {
+			return fmt.Errorf("couldn't find env var: %s: %w", name, err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("couldn't find env var: %s: %w", name, err)
+		return err
 	}
+
 	c := tableprint.CommonTablePrintArgs{
 		Format:          tableprint.Format(format),
 		Mask:            mask,

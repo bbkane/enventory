@@ -58,19 +58,25 @@ func varCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	_, err := es.VarCreate(
-		ctx,
-		models.VarCreateArgs{
-			EnvName:    envName,
-			Name:       name,
-			Comment:    commonCreateArgs.Comment,
-			CreateTime: commonCreateArgs.CreateTime,
-			UpdateTime: commonCreateArgs.UpdateTime,
-			Value:      value,
-		},
-	)
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		_, err := es.VarCreate(
+			ctx,
+			models.VarCreateArgs{
+				EnvName:    envName,
+				Name:       name,
+				Comment:    commonCreateArgs.Comment,
+				CreateTime: commonCreateArgs.CreateTime,
+				UpdateTime: commonCreateArgs.UpdateTime,
+				Value:      value,
+			},
+		)
+		if err != nil {
+			return fmt.Errorf("couldn't create env var: %s: %w", name, err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("couldn't create env var: %s: %w", name, err)
+		return err
 	}
 
 	fmt.Fprintf(cmdCtx.Stdout, "Created env var: %s: %s\n", envName, name)
@@ -96,7 +102,13 @@ func varDeleteRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.VarDelete(ctx, envName, name)
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		err := es.VarDelete(ctx, envName, name)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}
@@ -131,9 +143,18 @@ func varShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Conte
 	format := cmdCtx.Flags["--format"].(string)
 	width := mustGetWidthArg(cmdCtx.Flags)
 
-	envVar, envRefs, err := es.VarShow(ctx, envName, name)
+	var envVar *models.Var
+	var envRefs []models.VarRef
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		var err error
+		envVar, envRefs, err = es.VarShow(ctx, envName, name)
+		if err != nil {
+			return fmt.Errorf("couldn't find env var: %s: %w", name, err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("couldn't find env var: %s: %w", name, err)
+		return err
 	}
 
 	c := tableprint.CommonTablePrintArgs{
@@ -180,18 +201,24 @@ func varUpdateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 	newEnvName := ptrFromMap[string](cmdCtx.Flags, "--new-env")
 	value := ptrFromMap[string](cmdCtx.Flags, "--value")
 
-	err := es.VarUpdate(ctx, envName, name, models.VarUpdateArgs{
-		Comment:    commonUpdateArgs.Comment,
-		CreateTime: commonUpdateArgs.CreateTime,
-		EnvName:    newEnvName,
-		Name:       commonUpdateArgs.NewName,
-		UpdateTime: commonUpdateArgs.UpdateTime,
-		Value:      value,
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		err := es.VarUpdate(ctx, envName, name, models.VarUpdateArgs{
+			Comment:    commonUpdateArgs.Comment,
+			CreateTime: commonUpdateArgs.CreateTime,
+			EnvName:    newEnvName,
+			Name:       commonUpdateArgs.NewName,
+			UpdateTime: commonUpdateArgs.UpdateTime,
+			Value:      value,
+		})
+		if err != nil {
+			return fmt.Errorf("could not update env var: %w", err)
+		}
+		return nil
 	})
-
 	if err != nil {
-		return fmt.Errorf("could not update env var: %w", err)
+		return err
 	}
+
 	finalName := name
 	if commonUpdateArgs.NewName != nil {
 		finalName = *commonUpdateArgs.NewName
