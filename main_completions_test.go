@@ -99,6 +99,20 @@ func TestMainCompletions(t *testing.T) {
 			},
 		},
 		{
+			name:        "envVarUpdateNewEnv",
+			args:        []string{"var", "update", "--db-path", dbName, "--env", envName01, "--name", envVarName01, "--new-env"},
+			expectedErr: false,
+			expectedCandidates: &completion.Candidates{
+				Type: completion.Type_ValuesDescriptions,
+				Values: []completion.Candidate{
+					{
+						Name:        envName01,
+						Description: makeComment(envName01),
+					},
+				},
+			},
+		},
+		{
 			name:        "varRefShow",
 			args:        []string{"var", "ref", "show", "--db-path", dbName, "--env", envName01, "--name"},
 			expectedErr: false,

@@ -183,6 +183,8 @@ func VarUpdateCmd() wargcore.Command {
 			"--new-env",
 			"New env name",
 			scalar.String(),
+			flag.CompletionCandidates(withEnvServiceCompletions(
+				completeExistingEnvName)),
 		),
 		command.NewFlag(
 			"--value",

@@ -14,6 +14,7 @@ Note the the latest version is usually work in progress and may have not yet bee
 ## Fixed
 
 - All operations now run in top level transactions (fixes #87)
+- Add completions for `var update --new-env` (fixes #100)
 
 # v0.0.18
 
