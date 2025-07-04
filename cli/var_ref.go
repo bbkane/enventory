@@ -89,7 +89,7 @@ func VarRefDeleteCmd() wargcore.Command {
 		command.FlagMap(confirmFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
-		command.Flag("--name", varRefFlag()),
+		command.Flag("--name", varRefNameFlag()),
 		command.Flag(
 			"--env",
 			envNameFlag(),
@@ -127,7 +127,7 @@ func VarRefShowCmd() wargcore.Command {
 		command.FlagMap(timeZoneFlagMap()),
 		command.FlagMap(formatFlag()),
 		command.FlagMap(widthFlag()),
-		command.Flag("--name", varRefFlag()),
+		command.Flag("--name", varRefNameFlag()),
 		command.Flag(
 			"--env",
 			envNameFlag(),
@@ -166,5 +166,78 @@ func varRefShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Co
 	}
 
 	tableprint.VarRefShowPrint(c, *envRef, *envVar)
+	return nil
+}
+
+func VarRefUpdateCmd() wargcore.Command {
+	return command.New(
+		"Update a var ref",
+		withConfirm(withEnvService(varRefUpdateRun)),
+		command.Flag("--env", envNameFlag()),
+		command.FlagMap(commonUpdateFlags()),
+		command.FlagMap(timeoutFlagMap()),
+		command.FlagMap(sqliteDSNFlagMap()),
+		command.FlagMap(confirmFlag()),
+		command.Flag("--name", varRefNameFlag()),
+		command.NewFlag(
+			"--new-env",
+			"New env name",
+			scalar.String(),
+		),
+		command.NewFlag(
+			"--ref-env",
+			"New environment we're referencing",
+			scalar.String(),
+			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingEnvName)),
+		),
+		command.NewFlag(
+			"--ref-var",
+			"New variable we're referencing",
+			scalar.String(),
+			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingRefEnvVarName)),
+		),
+	)
+}
+
+func varRefUpdateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+	// common update flags
+	commonUpdateArgs := getCommonUpdateArgs(cmdCtx.Flags)
+
+	envName := mustGetEnvNameArg(cmdCtx.Flags)
+	name := mustGetNameArg(cmdCtx.Flags)
+	newEnvName := ptrFromMap[string](cmdCtx.Flags, "--new-env")
+	refEnvName := ptrFromMap[string](cmdCtx.Flags, "--ref-env")
+	refVarName := ptrFromMap[string](cmdCtx.Flags, "--ref-var")
+
+	err := es.WithTx(ctx, func(es models.EnvService) error {
+		err := es.VarRefUpdate(ctx, envName, name, models.VarRefUpdateArgs{
+			Comment:    commonUpdateArgs.Comment,
+			CreateTime: commonUpdateArgs.CreateTime,
+			EnvName:    newEnvName,
+			Name:       commonUpdateArgs.NewName,
+			UpdateTime: commonUpdateArgs.UpdateTime,
+			RefEnvName: refEnvName,
+			RefVarName: refVarName,
+		})
+		if err != nil {
+			return fmt.Errorf("could not update var ref: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	finalName := name
+	if commonUpdateArgs.NewName != nil {
+		finalName = *commonUpdateArgs.NewName
+	}
+
+	finalEnvName := envName
+	if newEnvName != nil {
+		finalEnvName = *newEnvName
+	}
+
+	fmt.Printf("Updated var ref %s:%s\n", finalEnvName, finalName)
 	return nil
 }

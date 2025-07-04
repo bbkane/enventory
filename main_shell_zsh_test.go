@@ -7,7 +7,7 @@ import (
 
 func TestShellZshExportNoEnvNoProblem(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -36,7 +36,7 @@ func TestShellZshExportNoEnvNoProblem(t *testing.T) {
 
 func TestShellZshExport(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -68,7 +68,7 @@ func TestShellZshExport(t *testing.T) {
 
 func TestShellZshUnexport(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 

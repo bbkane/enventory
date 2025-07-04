@@ -228,7 +228,7 @@ func completeExistingVarRefName(
 	return candidates, nil
 }
 
-func varRefFlag() wargcore.Flag {
+func varRefNameFlag() wargcore.Flag {
 	return flag.New(
 		"Var ref name",
 		scalar.String(),

@@ -51,6 +51,7 @@ func buildApp() *wargcli.App {
 					section.Command("create", cli.VarRefCreateCmd()),
 					section.Command("delete", cli.VarRefDeleteCmd()),
 					section.Command("show", cli.VarRefShowCmd()),
+					section.Command("update", cli.VarRefUpdateCmd()),
 				),
 			),
 		),

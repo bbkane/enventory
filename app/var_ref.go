@@ -141,3 +141,60 @@ func (e *EnvService) VarRefShow(ctx context.Context, envName string, name string
 			Value:      sqlcVar.Value,
 		}, nil
 }
+
+func (e *EnvService) VarRefUpdate(ctx context.Context, envName string, name string, args models.VarRefUpdateArgs) error {
+	queries := sqlcgen.New(e.dbtx)
+
+	envID, err := e.envFindID(ctx, envName)
+	if err != nil {
+		return err
+	}
+
+	// Find the var ref by env and name
+	sqlcRef, err := queries.VarRefShow(ctx, sqlcgen.VarRefShowParams{
+		EnvID: envID,
+		Name:  name,
+	})
+	if err != nil {
+		return models.ErrVarRefNotFound
+	}
+
+	// Handle new env ID if provided
+	var newEnvID *int64
+	if args.EnvName != nil {
+		tmp, err := e.envFindID(ctx, *args.EnvName)
+		if err != nil {
+			return err
+		}
+		newEnvID = &tmp
+	}
+
+	var newVarID *int64
+	switch {
+	case args.RefEnvName == nil && args.RefVarName == nil:
+		break
+	case args.RefEnvName != nil && args.RefVarName != nil:
+		tmp, err := e.varFindID(ctx, *args.RefEnvName, *args.RefVarName)
+		if err != nil {
+			return err
+		}
+		newVarID = &tmp
+	default: // one of them is passed, but not both
+		return fmt.Errorf("both --ref-env and --ref-var must be provided together")
+	}
+
+	_, err = queries.VarRefUpdate(ctx, sqlcgen.VarRefUpdateParams{
+		EnvID:      newEnvID,
+		Name:       args.Name,
+		Comment:    args.Comment,
+		CreateTime: models.TimePtrToStringPtr(args.CreateTime),
+		UpdateTime: models.TimePtrToStringPtr(args.UpdateTime),
+		VarID:      newVarID,
+		VarRefID:   sqlcRef.VarRefID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("err updating var ref: %w", err)
+	}
+	return nil
+}

@@ -87,6 +87,16 @@ type VarRefCreateArgs struct {
 	RefVarName string
 }
 
+type VarRefUpdateArgs struct {
+	Comment    *string
+	CreateTime *time.Time
+	EnvName    *string // for --new-env
+	Name       *string // for --new-name
+	UpdateTime *time.Time
+	RefEnvName *string // for --ref-env
+	RefVarName *string // for --ref-var
+}
+
 // -- interface
 
 type DBTX interface {
@@ -113,6 +123,7 @@ type EnvService interface {
 	VarRefDelete(ctx context.Context, envName string, name string) error
 	VarRefList(ctx context.Context, envName string) ([]VarRef, []Var, error)
 	VarRefShow(ctx context.Context, envName string, name string) (*VarRef, *Var, error)
+	VarRefUpdate(ctx context.Context, envName string, name string, args VarRefUpdateArgs) error
 
 	WithTx(ctx context.Context, fn func(es EnvService) error) error
 }

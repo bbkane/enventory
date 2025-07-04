@@ -7,7 +7,7 @@ import (
 
 func TestEnvRefCreate(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -55,6 +55,27 @@ func TestEnvRefCreate(t *testing.T) {
 				EnvName(envName01).Name(envVarName01).Tz().Mask(false).Finish(dbName),
 			expectActionErr: false,
 		},
+		{
+			name: "08_varRefUpdate",
+			args: new(testCmdBuilder).Strs("var", "ref", "update").
+				EnvName(envName02).Name(envRefName01).
+				CreateTime(oneTime).
+				UpdateTime(oneTime).
+				Comment("updated comment").
+				Strs("--new-env", envName01).
+				Strs("--new-name", envRefName01+"_updated").
+				Strs("--ref-env", envName01).
+				Strs("--ref-var", envVarName01).
+				Confirm(false).
+				Finish(dbName),
+			expectActionErr: false,
+		},
+		{
+			name: "09_varRefShow",
+			args: new(testCmdBuilder).Strs("var", "ref", "show").
+				EnvName(envName01).Name(envRefName01 + "_updated").Tz().Mask(false).Finish(dbName),
+			expectActionErr: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -66,7 +87,7 @@ func TestEnvRefCreate(t *testing.T) {
 
 func TestEnvRefDelete(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 

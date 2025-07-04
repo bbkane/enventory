@@ -1,0 +1,9 @@
+╭─────────────┬──────────────────────╮
+│ EnvName     │ envName01            │
+│ Name        │ envRefName01_updated │
+│ RefEnvName  │ envName01            │
+│ RefVarName  │ envVarName01         │
+│ RefVarValue │ val01                │
+│ Comment     │ updated comment      │
+│ CreateTime  │ Mon 0001-01-01       │
+╰─────────────┴──────────────────────╯

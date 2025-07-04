@@ -16,7 +16,7 @@ func TestBuildApp(t *testing.T) {
 
 func TestEnvCreate(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -49,7 +49,7 @@ func TestEnvCreate(t *testing.T) {
 
 func TestEnvDelete(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -88,7 +88,7 @@ func TestEnvDelete(t *testing.T) {
 
 func TestEnvUpdate(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 

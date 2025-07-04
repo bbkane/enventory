@@ -82,10 +82,15 @@ func (tcb *testCmdBuilder) ZeroTimes() *testCmdBuilder {
 	return tcb.Strs("--create-time", zeroTime, "--update-time", zeroTime)
 }
 
+func (tcb *testCmdBuilder) Comment(comment string) *testCmdBuilder {
+	return tcb.Strs("--comment", comment)
+}
+
 func (tcb *testCmdBuilder) EnvName(envName string) *testCmdBuilder {
 	return tcb.Strs("--env", envName)
 }
 
+// Tz sets the timezone to UTC for the command.
 func (tcb *testCmdBuilder) Tz() *testCmdBuilder {
 	return tcb.Strs("--timezone", "utc")
 }

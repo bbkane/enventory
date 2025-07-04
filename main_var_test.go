@@ -7,7 +7,7 @@ import (
 
 func TestVarCreate(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -45,7 +45,7 @@ func TestVarCreate(t *testing.T) {
 
 func TestVarDelete(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -90,7 +90,7 @@ func TestVarDelete(t *testing.T) {
 
 func TestVarDeleteNonexisting(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -118,7 +118,7 @@ func TestVarDeleteNonexisting(t *testing.T) {
 
 func TestEnvNonUniqueNames(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
@@ -151,7 +151,7 @@ func TestEnvNonUniqueNames(t *testing.T) {
 
 func TestVarUpdate(t *testing.T) {
 	t.Parallel()
-	updateGolden := os.Getenv("ENVELOPE_TEST_UPDATE_GOLDEN") != ""
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
 	dbName := createTempDB(t)
 
