@@ -5,6 +5,16 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Note the the latest version is usually work in progress and may have not yet been released.
 
+# v0.0.19
+
+## Added
+
+- `var ref update`!
+
+## Fixed
+
+- All operations now run in top level transactions (fixes #87)
+
 # v0.0.18
 
 ## Fixed
