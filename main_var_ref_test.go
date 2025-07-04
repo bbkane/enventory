@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestEnvRefCreate(t *testing.T) {
+func TestVarRefCreate(t *testing.T) {
 	t.Parallel()
 	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
@@ -85,7 +85,7 @@ func TestEnvRefCreate(t *testing.T) {
 	}
 }
 
-func TestEnvRefDelete(t *testing.T) {
+func TestVarRefDelete(t *testing.T) {
 	t.Parallel()
 	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
 
