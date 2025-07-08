@@ -1,4 +1,4 @@
 package sqliteconnect
 
-//go:generate go run github.com/sqlc-dev/sqlc/cmd/sqlc vet
-//go:generate go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
+//go:generate go tool -modfile=go.tool.mod sqlc vet
+//go:generate go tool -modfile=go.tool.mod sqlc generate
