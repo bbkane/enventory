@@ -461,7 +461,7 @@ func withEnvService(
 // withEnvService wraps a cli.Action to read --db-path and --timeout and create a EnvService
 func withEnvServiceCompletions(
 	f func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error),
-) wargcore.CompletionCandidates {
+) wargcore.CompletionCandidatesFunc {
 	return func(cmdCtx wargcore.Context) (*completion.Candidates, error) {
 
 		ctx, cancel := context.WithTimeout(

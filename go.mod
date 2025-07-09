@@ -8,7 +8,7 @@ require (
 	al.essio.dev/pkg/shellescape v1.6.0
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/stretchr/testify v1.10.0
-	go.bbkane.com/warg v0.0.32
+	go.bbkane.com/warg v0.0.33
 	golang.org/x/term v0.32.0
 	modernc.org/sqlite v1.38.0
 )
