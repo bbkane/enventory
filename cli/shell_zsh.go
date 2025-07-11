@@ -189,3 +189,28 @@ func shellZshExportUnexport(ctx context.Context, cmdCtx wargcore.Context, es mod
 
 	return nil
 }
+
+func ShellZshChdirCmd() wargcore.Command {
+	return command.New(
+		"Change directory and corresponding env vars",
+		withEnvService(shellZshChdirRun),
+		// TODO: maybe define the flags here to get better help.
+		command.Flag("--old", envNameFlag()),
+		command.Flag("--new", envNameFlag()),
+		command.FlagMap(timeoutFlagMap()),
+		command.FlagMap(sqliteDSNFlagMap()),
+		command.NewFlag(
+			"--no-env-no-problem",
+			"Exit without an error if the environment doesn't exit. Useful when runnng envelop on chpwd",
+			scalar.Bool(
+				scalar.Default(false),
+			),
+			flag.Required(),
+		),
+	)
+}
+
+func shellZshChdirRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+	// TODO: implement
+	return errors.New("TODO")
+}

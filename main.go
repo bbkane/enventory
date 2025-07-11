@@ -33,6 +33,7 @@ func buildApp() *wargcli.App {
 				section.NewSection(
 					"zsh",
 					"Zsh-specific commands",
+					section.Command("chdir", cli.ShellZshChdirCmd()),
 					section.Command("init", cli.ShellZshInitCmd()),
 					section.Command("export", cli.ShellZshExportCmd()),
 					section.Command("unexport", cli.ShellZshUnexportCmd()),
