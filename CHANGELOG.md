@@ -11,6 +11,10 @@ Note the the latest version is usually work in progress and may have not yet bee
 
 - `shell zsh chdir` - this does a fine-grained update of the environment when you change envs instead of the previous unexport all, then export all
 
+## Changed
+
+- `shell zsh init` now uses `shell zsh chdir` instead of `shell zsh unexport; shell zsh export`. If bugs are found, revert back to the old strategy with `shell zsh init --chpwd-strategy v0.0.19`. I aso removed `--print-export-env` and `--print-chwpd-hook` and now unconditionally print these in init
+
 # v0.0.19
 
 ## Added

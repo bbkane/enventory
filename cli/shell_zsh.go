@@ -28,19 +28,13 @@ func ShellZshInitCmd() wargcore.Command {
 			),
 			flag.Required(),
 		),
+		// TODO: actuall use this flag!
 		command.NewFlag(
-			"--print-export-env",
-			"Include export-env/unexport-env to easily use envs from the CLI",
-			scalar.Bool(
-				scalar.Default(true),
-			),
-			flag.Required(),
-		),
-		command.NewFlag(
-			"--print-chpwd-hook",
-			"Include hook to export/unexport envs when changing directories",
-			scalar.Bool(
-				scalar.Default(true),
+			"--chpwd-strategy",
+			"Temporary flag to revert back to the old chpwd strategy if bugs are found with the new one",
+			scalar.String(
+				scalar.Choices("v0.0.19", "v0.0.20"),
+				scalar.Default("v0.0.20"),
 			),
 			flag.Required(),
 		),
@@ -50,8 +44,6 @@ func ShellZshInitCmd() wargcore.Command {
 func shellZshInitRun(cmdCtx wargcore.Context) error {
 
 	printAutoload := cmdCtx.Flags["--print-autoload"].(bool)
-	printChpwdHook := cmdCtx.Flags["--print-chpwd-hook"].(bool)
-	printExportEnv := cmdCtx.Flags["--print-export-env"].(bool)
 
 	prelude := `
 # https://github.com/bbkane/enventory/
@@ -76,17 +68,13 @@ add-zsh-hook -Uz chpwd (){
     eval $(enventory shell zsh export --env "$PWD" --no-env-no-problem true)
 }
 `
-	if printChpwdHook {
-		fmt.Fprint(cmdCtx.Stdout, chpwdHook)
-	}
+	fmt.Fprint(cmdCtx.Stdout, chpwdHook)
 
 	exportEnv := `
 export-env() { eval $(enventory shell zsh export --env "$1" --no-env-no-problem true) }
 unexport-env() { eval $(enventory shell zsh unexport --env "$1" --no-env-no-problem true) }
 `
-	if printExportEnv {
-		fmt.Fprint(cmdCtx.Stdout, exportEnv)
-	}
+	fmt.Fprint(cmdCtx.Stdout, exportEnv)
 
 	return nil
 }
