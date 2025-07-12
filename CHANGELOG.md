@@ -5,6 +5,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Note the the latest version is usually work in progress and may have not yet been released.
 
+# v0.0.20
+
+## Added
+
+- `shell zsh chdir` - this does a fine-grained update of the environment when you change envs instead of the previous unexport all, then export all
+
 # v0.0.19
 
 ## Added

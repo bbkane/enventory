@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"al.essio.dev/pkg/shellescape"
 	"go.bbkane.com/enventory/models"
@@ -194,23 +195,138 @@ func ShellZshChdirCmd() wargcore.Command {
 	return command.New(
 		"Change directory and corresponding env vars",
 		withEnvService(shellZshChdirRun),
-		// TODO: maybe define the flags here to get better help.
+		// TODO: maybe define the flags here to get better descriptions.
 		command.Flag("--old", envNameFlag()),
 		command.Flag("--new", envNameFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
-		command.NewFlag(
-			"--no-env-no-problem",
-			"Exit without an error if the environment doesn't exit. Useful when runnng envelop on chpwd",
-			scalar.Bool(
-				scalar.Default(false),
-			),
-			flag.Required(),
-		),
 	)
 }
 
+type LookupEnvFunc = func(key string) (string, bool)
+type CustomLookupEnvFuncKey struct{}
+
+// LookupMap loooks up keys from a provided map. Useful to mock os.LookupEnv when parsing
+func LookupMap(m map[string]string) LookupEnvFunc {
+	return func(key string) (string, bool) {
+		val, exists := m[key]
+		return val, exists
+	}
+}
+
 func shellZshChdirRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
-	// TODO: implement
-	return errors.New("TODO")
+	oldEnvName := cmdCtx.Flags["--old"].(string)
+	newEnvName := cmdCtx.Flags["--new"].(string)
+
+	lookupEnv := os.LookupEnv
+	if custom := cmdCtx.Context.Value(CustomLookupEnvFuncKey{}); custom != nil {
+		lookupEnv = custom.(LookupEnvFunc)
+	}
+
+	// TODO: once I update vw_env_var_env_ref_unique_name to have the value, I can just query from there instead of two separate queries.
+	// TODO: if the environment isn't found, we shouldn't query for refs in the same env
+	oldVars, err := es.VarList(ctx, oldEnvName)
+	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
+		return fmt.Errorf("could not list old env vars: %s: %w", oldEnvName, err)
+	}
+	newVars, err := es.VarList(ctx, newEnvName)
+	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
+		return fmt.Errorf("could not list new env vars: %s: %w", newEnvName, err)
+	}
+
+	oldRefs, oldRefVars, err := es.VarRefList(ctx, oldEnvName)
+	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
+		return fmt.Errorf("could not list old env refs: %s: %w", oldEnvName, err)
+	}
+	newRefs, newRefVars, err := es.VarRefList(ctx, newEnvName)
+	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
+		return fmt.Errorf("could not list new env refs: %s: %w", newEnvName, err)
+	}
+
+	// turn them into maps for ease of checking...
+	newKVs := make(map[string]string, len(newVars)+len(newRefs))
+	for _, v := range newVars {
+		newKVs[v.Name] = v.Value
+	}
+	for i := range newRefs {
+		newKVs[newRefs[i].Name] = newRefVars[i].Value
+	}
+	oldKVs := make(map[string]string, len(oldVars)+len(oldRefs))
+	for _, v := range oldVars {
+		// if it exists in the new env, we don't need to process in the old env
+		if _, exists := newKVs[v.Name]; exists {
+			continue
+		}
+		oldKVs[v.Name] = v.Value
+	}
+	for i := range oldRefs {
+		// if it exists in the new env, we don't need to process in the old env
+		if _, exists := newKVs[oldRefs[i].Name]; exists {
+			continue
+		}
+		oldKVs[oldRefs[i].Name] = oldRefVars[i].Value
+	}
+
+	todo := computeExportChanges(oldKVs, newKVs, lookupEnv)
+
+	// print the change script
+	for _, kv := range todo.ToRemove {
+		fmt.Fprintf(cmdCtx.Stdout, "printf ' -%s';\n", shellescape.Quote(kv.Name))
+		fmt.Fprintf(cmdCtx.Stdout, "unset %s\n", shellescape.Quote(kv.Name))
+	}
+	for _, kv := range todo.Unchanged {
+		fmt.Fprintf(cmdCtx.Stdout, "printf ' =%s';\n", shellescape.Quote(kv.Name))
+	}
+	for _, kv := range todo.ToChange {
+		fmt.Fprintf(cmdCtx.Stdout, "printf ' ~%s';\n", shellescape.Quote(kv.Name))
+		fmt.Fprintf(cmdCtx.Stdout, "export %s=%s\n", shellescape.Quote(kv.Name), shellescape.Quote(kv.Value))
+	}
+	for _, kv := range todo.ToAdd {
+		fmt.Fprintf(cmdCtx.Stdout, "printf ' +%s';\n", shellescape.Quote(kv.Name))
+		fmt.Fprintf(cmdCtx.Stdout, "export %s=%s\n", shellescape.Quote(kv.Name), shellescape.Quote(kv.Value))
+	}
+	fmt.Fprint(cmdCtx.Stdout, "echo\n")
+	return nil
+}
+
+type kv struct {
+	Name  string
+	Value string
+}
+
+type computeExportChangesResult struct {
+	ToAdd     []kv
+	ToChange  []kv
+	ToRemove  []kv
+	Unchanged []kv
+}
+
+func computeExportChanges(oldKVs, newKVs map[string]string, lookupFunc func(string) (string, bool)) computeExportChangesResult {
+	res := computeExportChangesResult{
+		ToAdd:     nil,
+		ToChange:  nil,
+		ToRemove:  nil,
+		Unchanged: nil,
+	}
+
+	for key, val := range oldKVs {
+		_, exists := lookupFunc(key)
+		if exists {
+			res.ToRemove = append(res.ToRemove, kv{Name: key, Value: val})
+		}
+	}
+
+	for key, val := range newKVs {
+		envVal, exists := lookupFunc(key)
+		if exists {
+			if envVal == val {
+				res.Unchanged = append(res.Unchanged, kv{Name: key, Value: val})
+			} else {
+				res.ToChange = append(res.ToChange, kv{Name: key, Value: val})
+			}
+		} else {
+			res.ToAdd = append(res.ToAdd, kv{Name: key, Value: val})
+		}
+	}
+	return res
 }

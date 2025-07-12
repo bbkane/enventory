@@ -1,0 +1,8 @@
+printf ' +nv1';
+export nv1=nv1val
+printf ' +nr1';
+export nr1=nv1val
+printf ' ~ov1';
+export ov1=ov1val-in-new-env
+printf ' =or1';
+echo

@@ -53,6 +53,12 @@ func varCreateTestCmd(dbPath string, envName string, name string, value string) 
 		ZeroTimes().Finish(dbPath)
 }
 
+func varRefCreateTestCmd(dbPath string, envName string, name string, refEnv string, refVar string) []string {
+	return new(testCmdBuilder).Strs("var", "ref", "create").
+		EnvName(envName).Name(name).Strs("--ref-env", refEnv).
+		Strs("--ref-var", refVar).ZeroTimes().Finish(dbPath)
+}
+
 type testCmdBuilder struct {
 	cmd []string
 }
