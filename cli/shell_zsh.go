@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 
 	"al.essio.dev/pkg/shellescape"
 	"go.bbkane.com/enventory/models"
@@ -328,5 +330,12 @@ func computeExportChanges(oldKVs, newKVs map[string]string, lookupFunc func(stri
 			res.ToAdd = append(res.ToAdd, kv{Name: key, Value: val})
 		}
 	}
+	cmp := func(a, b kv) int {
+		return strings.Compare(a.Name, b.Name)
+	}
+	slices.SortFunc(res.ToAdd, cmp)
+	slices.SortFunc(res.ToChange, cmp)
+	slices.SortFunc(res.ToRemove, cmp)
+	slices.SortFunc(res.Unchanged, cmp)
 	return res
 }
