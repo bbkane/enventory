@@ -44,6 +44,7 @@ func ShellZshInitCmd() wargcore.Command {
 func shellZshInitRun(cmdCtx wargcore.Context) error {
 
 	printAutoload := cmdCtx.Flags["--print-autoload"].(bool)
+	chpwdStrategy := cmdCtx.Flags["--chpwd-strategy"].(string)
 
 	prelude := `
 # https://github.com/bbkane/enventory/
@@ -62,12 +63,23 @@ autoload -Uz add-zsh-hook
 		fmt.Fprint(cmdCtx.Stdout, autoload)
 	}
 
-	chpwdHook := `
+	var chpwdHook string
+	switch chpwdStrategy {
+	case "v0.0.19":
+		chpwdHook = `
 add-zsh-hook -Uz chpwd (){
     eval $(enventory shell zsh unexport --env "$OLDPWD" --no-env-no-problem true)
     eval $(enventory shell zsh export --env "$PWD" --no-env-no-problem true)
 }
 `
+	case "v0.0.20":
+		chpwdHook = `
+add-zsh-hook -Uz chpwd (){
+    eval $(enventory shell zsh chdir --old "$OLDPWD" --new "$PWD")
+}
+`
+	}
+
 	fmt.Fprint(cmdCtx.Stdout, chpwdHook)
 
 	exportEnv := `
@@ -275,7 +287,7 @@ func shellZshChdirRun(ctx context.Context, es models.EnvService, cmdCtx wargcore
 		fmt.Fprintf(cmdCtx.Stdout, "printf ' +%s';\n", shellescape.Quote(kv.Name))
 		fmt.Fprintf(cmdCtx.Stdout, "export %s=%s\n", shellescape.Quote(kv.Name), shellescape.Quote(kv.Value))
 	}
-	fmt.Fprint(cmdCtx.Stdout, "echo\n")
+	fmt.Fprint(cmdCtx.Stdout, "echo;\n")
 	return nil
 }
 
