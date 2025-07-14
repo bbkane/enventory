@@ -1,8 +1,9 @@
+printf 'enventory:';
 printf ' -or1';
-unset or1
+unset or1;
 printf ' =nr1';
 printf ' ~ov1';
-export ov1=ov1val-in-new-env
+export ov1=ov1val-in-new-env;
 printf ' +nv1';
-export nv1=nv1val
-echo
+export nv1=nv1val;
+echo;

@@ -45,9 +45,7 @@ Sleep 200ms
 Enter
 Sleep 1s
 
-Type '# simulate directory change'
-Enter
-Type 'cd .'
+Type 'cd .  # simulate directory change'
 Sleep 200ms
 Enter
 Sleep 1s
