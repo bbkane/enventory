@@ -82,6 +82,26 @@ func envDelete(ctx context.Context, es models.EnvService, cmdCtx wargcore.Contex
 	return nil
 }
 
+const envListCmdHelpLong = `List environments with optional filtering expression. The expression must return a list of environments.
+See https://expr-lang.org/docs/language-definition for details on the expression syntax.
+I've also added the following functions to the expression language:
+
+- duration: Takes a string like "52w" or "5d" and returns a duration.
+  Example: duration("52w").
+  See https://github.com/xhit/go-str2duration for more details
+- pathExists: Takes a string and returns true if the path exists in the environment. Example: pathExists(.Name)
+
+Examples:
+
+# list envs that are not paths (i.e., likely to be re-used) or have been updated in the last 90 days
+enventory env list --expr 'filter(Envs, not pathExists(.Name) or .UpdateTime > now() - duration("90d"))'
+
+# list envs that start with "test"
+enventory env list --expr 'filter(Envs, hasPrefix(.Name, "test"))'
+
+# sort envs by comment
+enventory env list --expr 'sortBy(Envs, .Comment, "asc")'`
+
 func EnvListCmd() wargcore.Command {
 	return command.New(
 		"List environments",
@@ -90,14 +110,26 @@ func EnvListCmd() wargcore.Command {
 		command.FlagMap(sqliteDSNFlagMap()),
 		command.FlagMap(timeZoneFlagMap()),
 		command.FlagMap(widthFlag()),
+		command.HelpLong(envListCmdHelpLong),
+		command.NewFlag(
+			"--expr",
+			"Expression to filter environments",
+			scalar.String(),
+			flag.EnvVars("ENVENTORY_ENV_LIST_EXPR"),
+		),
 	)
 }
 
 func envList(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
 	var envs []models.Env
+	expr := ptrFromMap[string](cmdCtx.Flags, "--expr")
+
 	err := es.WithTx(ctx, func(es models.EnvService) error {
 		var err error
-		envs, err = es.EnvList(ctx)
+		// TODO: Pass the expr argument - change nil to actual args later
+		envs, err = es.EnvList(ctx, models.EnvListArgs{
+			Expr: expr,
+		})
 		if err != nil {
 			return err
 		}

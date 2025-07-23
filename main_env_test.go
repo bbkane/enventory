@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
+	"go.bbkane.com/enventory/app"
+	"go.bbkane.com/enventory/models"
 )
 
 func TestBuildApp(t *testing.T) {
@@ -126,4 +132,27 @@ func TestEnvUpdate(t *testing.T) {
 			goldenTest(t, tt, updateGolden)
 		})
 	}
+}
+
+func TestEnvListWithExpr(t *testing.T) {
+	require := require.New(t)
+	t.Parallel()
+
+	dbName := createTempDB(t)
+
+	ctx := context.Background()
+	service, err := app.NewEnvService(ctx, dbName)
+	require.NoError(err)
+	_, err = service.EnvCreate(ctx, models.EnvCreateArgs{Name: "firstenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+	require.NoError(err)
+	_, err = service.EnvCreate(ctx, models.EnvCreateArgs{Name: "secondenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+	require.NoError(err)
+
+	query := "filter(Envs, .Name == 'firstenv')"
+	actualEnvs, err := service.EnvList(ctx, models.EnvListArgs{
+		Expr: &query,
+	})
+	require.NoError(err)
+	epxectedEnvs := []models.Env{{Name: "firstenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}}}
+	require.Equal(epxectedEnvs, actualEnvs)
 }

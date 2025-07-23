@@ -5,6 +5,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Note the the latest version is usually work in progress and may have not yet been released.
 
+# v0.0.21
+
+## Added
+
+- `enventory env list --expr` - sort and filter environments! See `enventory env list -h` for examples.
+
 # v0.0.20
 
 ## Added
