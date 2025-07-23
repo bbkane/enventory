@@ -12,5 +12,3 @@ pre-commit:
     yamllint:
       run: yamllint .
   parallel: true
-  skip:
-    - ref: dev/*
