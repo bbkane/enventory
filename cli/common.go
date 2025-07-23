@@ -114,7 +114,8 @@ func widthFlag() wargcore.FlagMap {
 }
 
 func completeExistingEnvName(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error) {
-	envs, err := es.EnvList(ctx)
+	// TODO: should this use expr?
+	envs, err := es.EnvList(ctx, models.EnvListArgs{Expr: nil})
 	if err != nil {
 		return nil, fmt.Errorf("could not list envs for completion: %w", err)
 	}

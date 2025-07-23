@@ -5,7 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 
+	"github.com/expr-lang/expr"
+	"github.com/xhit/go-str2duration/v2"
 	"go.bbkane.com/enventory/app/sqliteconnect/sqlcgen"
 	"go.bbkane.com/enventory/models"
 )
@@ -70,7 +74,18 @@ func (e *EnvService) EnvDelete(ctx context.Context, name string) error {
 	return nil
 }
 
-func (e *EnvService) EnvList(ctx context.Context) ([]models.Env, error) {
+func pathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (e *EnvService) EnvList(ctx context.Context, args models.EnvListArgs) ([]models.Env, error) {
 	queries := sqlcgen.New(e.dbtx)
 
 	sqlcEnvs, err := queries.EnvList(ctx)
@@ -86,6 +101,53 @@ func (e *EnvService) EnvList(ctx context.Context) ([]models.Env, error) {
 			CreateTime: models.StringToTimeMust(e.CreateTime),
 			UpdateTime: models.StringToTimeMust(e.UpdateTime),
 		})
+	}
+
+	// TODO: use --timezone since I'm messing with dates
+	// go run . env list --expr 'filter(Envs, pathExists(.Name) and .CreateTime > now() - duration("52w"))'
+	pathExists := expr.Function(
+		"pathExists",
+		func(params ...any) (any, error) {
+			return pathExists(params[0].(string))
+		},
+		new(func(string) (bool, error)),
+	)
+
+	duration := expr.Function(
+		"duration",
+		func(params ...any) (any, error) {
+			return str2duration.ParseDuration(params[0].(string))
+		},
+		str2duration.ParseDuration,
+	)
+
+	if args.Expr != nil {
+		program, err := expr.Compile(*args.Expr, duration, pathExists)
+		if err != nil {
+			return nil, fmt.Errorf("could not compile expr: %w", err)
+		}
+
+		exprEnv := map[string]any{
+			"Envs":       ret,
+			"pathExists": pathExists,
+		}
+
+		output, err := expr.Run(program, exprEnv)
+		if err != nil {
+			return nil, fmt.Errorf("could not eval expr: %w", err)
+		}
+		if filteredEnvs, ok := output.([]any); ok {
+			ret = nil
+			for _, e := range filteredEnvs {
+				if env, ok := e.(models.Env); ok {
+					ret = append(ret, env)
+				} else {
+					return nil, fmt.Errorf("expr slice item is not a models.Env: %T: %#v", e, e)
+				}
+			}
+		} else {
+			return nil, fmt.Errorf("expr output is not a slice: %T", output)
+		}
 	}
 
 	return ret, nil
