@@ -9,7 +9,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/stretchr/testify v1.10.0
 	go.bbkane.com/warg v0.0.33
-	golang.org/x/term v0.32.0
+	golang.org/x/term v0.33.0
 	modernc.org/sqlite v1.38.0
 )
 
@@ -29,7 +29,7 @@ require (
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	go.bbkane.com/gocolor v0.0.5 // indirect
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.65.10 // indirect
