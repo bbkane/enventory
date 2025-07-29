@@ -23,7 +23,11 @@ import (
 	"go.bbkane.com/warg/value/scalar"
 )
 
-var cwd string //nolint:gochecknoglobals // cwd will not change
+//nolint:gochecknoglobals // cwd will not change
+var cwd string
+
+//nolint:gochecknoglobals // global tracer
+var tracer = otel.Tracer("go.bbkane.com/enventory/cli")
 
 func init() { //nolint:gochecknoinits  // cwd will not change
 	var err error
@@ -455,7 +459,7 @@ func withSetup(
 		)
 		defer cancel()
 
-		tracerProvder, err := motel.NewTracerProviderFromEnv(ctx, motel.NewTracerProviderFromEnvArgs{
+		tracerProvider, err := motel.NewTracerProviderFromEnv(ctx, motel.NewTracerProviderFromEnvArgs{
 			AppName: cmdCtx.App.Name,
 			Version: cmdCtx.App.Version,
 		})
@@ -463,14 +467,17 @@ func withSetup(
 		if err != nil {
 			return fmt.Errorf("could not init tracerProvider: %w", err)
 		}
-		otel.SetTracerProvider(tracerProvder)
+		otel.SetTracerProvider(tracerProvider)
 		defer func() {
 			// best effort reporting if shutdown fails
-			err = tracerProvder.Shutdown(ctx)
+			err = tracerProvider.Shutdown(ctx)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "could not shutdown tracer: %v", err)
 			}
 		}()
+
+		ctx, span := tracer.Start(ctx, "withSetup")
+		defer span.End()
 
 		sqliteDSN := cmdCtx.Flags["--db-path"].(path.Path).MustExpand()
 		es, err := app.NewEnvService(ctx, sqliteDSN)
