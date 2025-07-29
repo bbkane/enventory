@@ -117,6 +117,7 @@ type EnvService interface {
 	EnvUpdate(ctx context.Context, name string, args EnvUpdateArgs) error
 	EnvShow(ctx context.Context, name string) (*Env, error)
 
+	// TODO: should envName be its own parameter?
 	VarCreate(ctx context.Context, args VarCreateArgs) (*Var, error)
 	VarDelete(ctx context.Context, envName string, name string) error
 	VarList(ctx context.Context, envName string) ([]Var, error)

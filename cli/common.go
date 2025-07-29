@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"go.bbkane.com/enventory/app"
+	"go.bbkane.com/enventory/app/tracedapp"
 	"go.bbkane.com/enventory/models"
 	"go.bbkane.com/motel"
 	"go.bbkane.com/warg/completion"
@@ -442,7 +443,7 @@ func mustGetWidthArg(pf wargcore.PassedFlags) int {
 // withSetup wraps a cli.Action to read --db-path and --timeout and creates
 //   - a context from the timeout
 //   - a tracer provider (and sets it globally)
-//   - an EnvService
+//   - an EnvService ()
 func withSetup(
 	f func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error,
 ) wargcore.Action {
@@ -460,7 +461,7 @@ func withSetup(
 		})
 
 		if err != nil {
-			return fmt.Errorf("coudl not init tracerProvider: %w", err)
+			return fmt.Errorf("could not init tracerProvider: %w", err)
 		}
 		otel.SetTracerProvider(tracerProvder)
 		defer func() {
@@ -473,6 +474,7 @@ func withSetup(
 
 		sqliteDSN := cmdCtx.Flags["--db-path"].(path.Path).MustExpand()
 		es, err := app.NewEnvService(ctx, sqliteDSN)
+		es = tracedapp.New(tracedapp.Tracer, es)
 		if err != nil {
 			return fmt.Errorf("could not create env service: %w", err)
 		}
