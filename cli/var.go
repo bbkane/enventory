@@ -58,7 +58,7 @@ func varCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		_, err := es.VarCreate(
 			ctx,
 			models.VarCreateArgs{
@@ -102,7 +102,7 @@ func varDeleteRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		err := es.VarDelete(ctx, envName, name)
 		if err != nil {
 			return err
@@ -145,7 +145,7 @@ func varShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Conte
 
 	var envVar *models.Var
 	var envRefs []models.VarRef
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctxt context.Context, es models.EnvService) error {
 		var err error
 		envVar, envRefs, err = es.VarShow(ctx, envName, name)
 		if err != nil {
@@ -203,7 +203,7 @@ func varUpdateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 	newEnvName := ptrFromMap[string](cmdCtx.Flags, "--new-env")
 	value := ptrFromMap[string](cmdCtx.Flags, "--value")
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		err := es.VarUpdate(ctx, envName, name, models.VarUpdateArgs{
 			Comment:    commonUpdateArgs.Comment,
 			CreateTime: commonUpdateArgs.CreateTime,

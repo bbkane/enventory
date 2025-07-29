@@ -130,5 +130,5 @@ type EnvService interface {
 	VarRefShow(ctx context.Context, envName string, name string) (*VarRef, *Var, error)
 	VarRefUpdate(ctx context.Context, envName string, name string, args VarRefUpdateArgs) error
 
-	WithTx(ctx context.Context, fn func(es EnvService) error) error
+	WithTx(ctx context.Context, fn func(ctx context.Context, es EnvService) error) error
 }

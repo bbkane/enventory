@@ -130,7 +130,7 @@ func (t *TracedApp) VarCreate(ctx context.Context, args models.VarCreateArgs) (*
 		trace.WithAttributes(
 			attribute.String("args.EnvName", args.EnvName),
 			attribute.String("args.Name", args.Name),
-			attribute.String("args.Value", args.Value),
+			// attribute.String("args.Value", args.Value), // can be sensitive
 			attribute.String("args.Comment", args.Comment),
 			attribute.String("args.CreateTime", models.TimeToString(args.CreateTime)),
 			attribute.String("args.UpdateTime", models.TimeToString(args.UpdateTime)),
@@ -192,7 +192,7 @@ func (t *TracedApp) VarUpdate(ctx context.Context, envName string, name string, 
 			attribute.String("envName", envName),
 			attribute.String("name", name),
 			attribute.String("args.Name", ptrToString(args.Name)),
-			attribute.String("args.Value", ptrToString(args.Value)),
+			// attribute.String("args.Value", ptrToString(args.Value)),  // can be sensitive
 			attribute.String("args.Comment", ptrToString(args.Comment)),
 			attribute.String("args.CreateTime", ptrToString(models.TimePtrToStringPtr(args.CreateTime))),
 			attribute.String("args.UpdateTime", ptrToString(models.TimePtrToStringPtr(args.UpdateTime))),
@@ -341,15 +341,15 @@ func (t *TracedApp) VarRefUpdate(ctx context.Context, envName string, name strin
 
 // -- WithTx
 
-func (t *TracedApp) WithTx(ctx context.Context, fn func(es models.EnvService) error) error {
+func (t *TracedApp) WithTx(ctx context.Context, fn func(ctx context.Context, es models.EnvService) error) error {
 	ctx, span := t.tracer.Start(ctx, "WithTx")
 	defer span.End()
 
-	err := t.EnvService.WithTx(ctx, func(es models.EnvService) error {
+	err := t.EnvService.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		// Wrap the EnvService with tracing.
 		tracedES := New(t.tracer, es)
 
-		return fn(tracedES)
+		return fn(ctx, tracedES)
 	})
 
 	if err != nil {

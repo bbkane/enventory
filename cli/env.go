@@ -20,7 +20,7 @@ func EnvCreateCmd() wargcore.Command {
 		"Create an environment",
 		withSetup(func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
 			var env *models.Env
-			err := es.WithTx(ctx, func(es models.EnvService) error {
+			err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 				var err error
 				env, err = es.EnvCreate(ctx, createArgs)
 				if err != nil {
@@ -67,7 +67,7 @@ func EnvDeleteCmd() wargcore.Command {
 
 func envDelete(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
 	name := mustGetNameArg(cmdCtx.Flags)
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		err := es.EnvDelete(ctx, name)
 		if err != nil {
 			return fmt.Errorf("could not delete env: %s: %w", name, err)
@@ -124,7 +124,7 @@ func envList(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context)
 	var envs []models.Env
 	expr := ptrFromMap[string](cmdCtx.Flags, "--expr")
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		var err error
 		// TODO: Pass the expr argument - change nil to actual args later
 		envs, err = es.EnvList(ctx, models.EnvListArgs{
@@ -175,7 +175,7 @@ func envShow(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context)
 	var refs []models.VarRef
 	var referencedVars []models.Var
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		var err error
 		env, err = es.EnvShow(ctx, name)
 		if err != nil {
@@ -229,7 +229,7 @@ func envUpdate(ctx context.Context, es models.EnvService, cmdCtx wargcore.Contex
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		err := es.EnvUpdate(ctx, name, models.EnvUpdateArgs{
 			Comment:    comment,
 			CreateTime: createTime,

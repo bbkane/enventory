@@ -56,7 +56,7 @@ func varRefCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.
 
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		_, err := es.VarRefCreate(
 			ctx,
 			models.VarRefCreateArgs{
@@ -102,7 +102,7 @@ func varRefDeleteRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		err := es.VarRefDelete(ctx, envName, name)
 		if err != nil {
 			return err
@@ -145,7 +145,7 @@ func varRefShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Co
 
 	var envRef *models.VarRef
 	var envVar *models.Var
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		var err error
 		envRef, envVar, err = es.VarRefShow(ctx, envName, name)
 		if err != nil {
@@ -209,7 +209,7 @@ func varRefUpdateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.
 	refEnvName := ptrFromMap[string](cmdCtx.Flags, "--ref-env")
 	refVarName := ptrFromMap[string](cmdCtx.Flags, "--ref-var")
 
-	err := es.WithTx(ctx, func(es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
 		err := es.VarRefUpdate(ctx, envName, name, models.VarRefUpdateArgs{
 			Comment:    commonUpdateArgs.Comment,
 			CreateTime: commonUpdateArgs.CreateTime,
