@@ -15,7 +15,7 @@ import (
 func VarRefCreateCmd() wargcore.Command {
 	return command.New(
 		"Create a reference in this env to a variable in another env",
-		withEnvService(varRefCreateRun),
+		withSetup(varRefCreateRun),
 		command.NewFlag(
 			"--name",
 			"Ref name",
@@ -85,7 +85,7 @@ func varRefCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.
 func VarRefDeleteCmd() wargcore.Command {
 	return command.New(
 		"Delete a reference to a variablea",
-		withConfirm(withEnvService(varRefDeleteRun)),
+		withConfirm(withSetup(varRefDeleteRun)),
 		command.FlagMap(confirmFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
@@ -120,7 +120,7 @@ func varRefDeleteRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.
 func VarRefShowCmd() wargcore.Command {
 	return command.New(
 		"Show details for a reference",
-		withEnvService(varRefShowRun),
+		withSetup(varRefShowRun),
 		command.FlagMap(maskFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
@@ -172,7 +172,7 @@ func varRefShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Co
 func VarRefUpdateCmd() wargcore.Command {
 	return command.New(
 		"Update a var ref",
-		withConfirm(withEnvService(varRefUpdateRun)),
+		withConfirm(withSetup(varRefUpdateRun)),
 		command.Flag("--env", envNameFlag()),
 		command.FlagMap(commonUpdateFlags()),
 		command.FlagMap(timeoutFlagMap()),

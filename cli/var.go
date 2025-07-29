@@ -17,7 +17,7 @@ import (
 func VarCreateCmd() wargcore.Command {
 	return command.New(
 		"Create a variable local to the this env",
-		withEnvService(varCreateRun),
+		withSetup(varCreateRun),
 		command.Flag(
 			"--env",
 			envNameFlag(),
@@ -86,7 +86,7 @@ func varCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 func VarDeleteCmd() wargcore.Command {
 	return command.New(
 		"Delete a variable local to the this env",
-		withConfirm(withEnvService(varDeleteRun)),
+		withConfirm(withSetup(varDeleteRun)),
 		command.FlagMap(confirmFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
@@ -119,7 +119,7 @@ func varDeleteRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 func VarShowCmd() wargcore.Command {
 	return command.New(
 		"Show details for a local var",
-		withEnvService(varShowRun),
+		withSetup(varShowRun),
 		command.FlagMap(maskFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
@@ -172,7 +172,7 @@ func varShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Conte
 func VarUpdateCmd() wargcore.Command {
 	return command.New(
 		"Update and env var",
-		withConfirm(withEnvService(varUpdateRun)),
+		withConfirm(withSetup(varUpdateRun)),
 		command.Flag("--env", envNameFlag()),
 		command.FlagMap(commonUpdateFlags()),
 		command.FlagMap(timeoutFlagMap()),

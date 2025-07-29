@@ -18,7 +18,7 @@ func EnvCreateCmd() wargcore.Command {
 	var createArgs models.EnvCreateArgs
 	return command.New(
 		"Create an environment",
-		withEnvService(func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+		withSetup(func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
 			var env *models.Env
 			err := es.WithTx(ctx, func(es models.EnvService) error {
 				var err error
@@ -57,7 +57,7 @@ func EnvCreateCmd() wargcore.Command {
 func EnvDeleteCmd() wargcore.Command {
 	return command.New(
 		"Delete an environment and associated vars",
-		withConfirm(withEnvService(envDelete)),
+		withConfirm(withSetup(envDelete)),
 		command.Flag("--name", envNameFlag()),
 		command.FlagMap(confirmFlag()),
 		command.FlagMap(timeoutFlagMap()),
@@ -105,7 +105,7 @@ enventory env list --expr 'sortBy(Envs, .Comment, "asc")'`
 func EnvListCmd() wargcore.Command {
 	return command.New(
 		"List environments",
-		withEnvService(envList),
+		withSetup(envList),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
 		command.FlagMap(timeZoneFlagMap()),
@@ -154,7 +154,7 @@ func envList(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context)
 func EnvShowCmd() wargcore.Command {
 	return command.New(
 		"Print environment details",
-		withEnvService(envShow),
+		withSetup(envShow),
 		command.Flag("--name", envNameFlag()),
 		command.FlagMap(maskFlag()),
 		command.FlagMap(timeoutFlagMap()),
@@ -211,7 +211,7 @@ func envShow(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context)
 func EnvUpdateCmd() wargcore.Command {
 	return command.New(
 		"Update an environment",
-		withConfirm(withEnvService(envUpdate)),
+		withConfirm(withSetup(envUpdate)),
 		command.FlagMap(commonUpdateFlags()),
 		command.Flag("--name", envNameFlag()),
 		command.FlagMap(timeoutFlagMap()),

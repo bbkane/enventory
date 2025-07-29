@@ -10,10 +10,12 @@ import (
 
 	"go.bbkane.com/enventory/app"
 	"go.bbkane.com/enventory/models"
+	"go.bbkane.com/motel"
 	"go.bbkane.com/warg/completion"
 	"go.bbkane.com/warg/flag"
 	"go.bbkane.com/warg/path"
 	"go.bbkane.com/warg/wargcore"
+	"go.opentelemetry.io/otel"
 	"golang.org/x/term"
 
 	"go.bbkane.com/warg/value/contained"
@@ -437,8 +439,11 @@ func mustGetWidthArg(pf wargcore.PassedFlags) int {
 	return pf["--width"].(int)
 }
 
-// withEnvService wraps a cli.Action to read --db-path and --timeout and create a EnvService
-func withEnvService(
+// withSetup wraps a cli.Action to read --db-path and --timeout and creates
+//   - a context from the timeout
+//   - a tracer provider (and sets it globally)
+//   - an EnvService
+func withSetup(
 	f func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error,
 ) wargcore.Action {
 	return func(cmdCtx wargcore.Context) error {
@@ -448,6 +453,23 @@ func withEnvService(
 			mustGetTimeoutArg(cmdCtx.Flags),
 		)
 		defer cancel()
+
+		tracerProvder, err := motel.NewTracerProviderFromEnv(ctx, motel.NewTracerProviderFromEnvArgs{
+			AppName: cmdCtx.App.Name,
+			Version: cmdCtx.App.Version,
+		})
+
+		if err != nil {
+			return fmt.Errorf("coudl not init tracerProvider: %w", err)
+		}
+		otel.SetTracerProvider(tracerProvder)
+		defer func() {
+			// best effort reporting if shutdown fails
+			err = tracerProvder.Shutdown(ctx)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "could not shutdown tracer: %v", err)
+			}
+		}()
 
 		sqliteDSN := cmdCtx.Flags["--db-path"].(path.Path).MustExpand()
 		es, err := app.NewEnvService(ctx, sqliteDSN)

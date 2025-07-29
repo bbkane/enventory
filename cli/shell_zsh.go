@@ -94,7 +94,7 @@ unexport-env() { eval $(enventory shell zsh unexport --env "$1" --no-env-no-prob
 func ShellZshExportCmd() wargcore.Command {
 	return command.New(
 		"Print export script",
-		withEnvService(shellZshExportRun),
+		withSetup(shellZshExportRun),
 		command.Flag("--env", envNameFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
@@ -116,7 +116,7 @@ func shellZshExportRun(ctx context.Context, es models.EnvService, cmdCtx wargcor
 func ShellZshUnexportCmd() wargcore.Command {
 	return command.New(
 		"Print unexport script",
-		withEnvService(shellZshUnexportRun),
+		withSetup(shellZshUnexportRun),
 		command.Flag("--env", envNameFlag()),
 		command.FlagMap(timeoutFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
@@ -196,7 +196,7 @@ func shellZshExportUnexport(ctx context.Context, cmdCtx wargcore.Context, es mod
 func ShellZshChdirCmd() wargcore.Command {
 	return command.New(
 		"Change directory and corresponding env vars",
-		withEnvService(shellZshChdirRun),
+		withSetup(shellZshChdirRun),
 		// TODO: maybe define the flags here to get better descriptions.
 		command.Flag("--old", envNameFlag()),
 		command.Flag("--new", envNameFlag()),
