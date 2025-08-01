@@ -39,7 +39,7 @@ func VarCreateCmd() wargcore.Command {
 	)
 }
 
-func varCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func varCreateRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 
 	// common create Flags
 	commonCreateArgs := mustGetCommonCreateArgs(cmdCtx.Flags)
@@ -58,7 +58,7 @@ func varCreateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		_, err := es.VarCreate(
 			ctx,
 			models.VarCreateArgs{
@@ -98,11 +98,11 @@ func VarDeleteCmd() wargcore.Command {
 	)
 }
 
-func varDeleteRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func varDeleteRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		err := es.VarDelete(ctx, envName, name)
 		if err != nil {
 			return err
@@ -134,7 +134,7 @@ func VarShowCmd() wargcore.Command {
 	)
 }
 
-func varShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func varShowRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 
 	mask := mustGetMaskArg(cmdCtx.Flags)
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
@@ -145,7 +145,7 @@ func varShowRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Conte
 
 	var envVar *models.Var
 	var envRefs []models.VarRef
-	err := es.WithTx(ctx, func(ctxt context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctxt context.Context, es models.Service) error {
 		var err error
 		envVar, envRefs, err = es.VarShow(ctx, envName, name)
 		if err != nil {
@@ -194,7 +194,7 @@ func VarUpdateCmd() wargcore.Command {
 	)
 }
 
-func varUpdateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func varUpdateRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	// common update flags
 	commonUpdateArgs := getCommonUpdateArgs(cmdCtx.Flags)
 
@@ -203,7 +203,7 @@ func varUpdateRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Con
 	newEnvName := ptrFromMap[string](cmdCtx.Flags, "--new-env")
 	value := ptrFromMap[string](cmdCtx.Flags, "--value")
 
-	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		err := es.VarUpdate(ctx, envName, name, models.VarUpdateArgs{
 			Comment:    commonUpdateArgs.Comment,
 			CreateTime: commonUpdateArgs.CreateTime,

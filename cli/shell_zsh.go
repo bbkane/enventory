@@ -109,7 +109,7 @@ func ShellZshExportCmd() wargcore.Command {
 	)
 }
 
-func shellZshExportRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func shellZshExportRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	return shellZshExportUnexport(ctx, cmdCtx, es, "export")
 }
 
@@ -131,11 +131,11 @@ func ShellZshUnexportCmd() wargcore.Command {
 	)
 }
 
-func shellZshUnexportRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func shellZshUnexportRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	return shellZshExportUnexport(ctx, cmdCtx, es, "unexport")
 }
 
-func shellZshExportUnexport(ctx context.Context, cmdCtx wargcore.Context, es models.EnvService, scriptType string) error {
+func shellZshExportUnexport(ctx context.Context, cmdCtx wargcore.Context, es models.Service, scriptType string) error {
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 	noEnvNoProblem := cmdCtx.Flags["--no-env-no-problem"].(bool)
 
@@ -216,7 +216,7 @@ func LookupMap(m map[string]string) LookupEnvFunc {
 	}
 }
 
-func shellZshChdirRun(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	oldEnvName := cmdCtx.Flags["--old"].(string)
 	newEnvName := cmdCtx.Flags["--new"].(string)
 

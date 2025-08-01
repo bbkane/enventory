@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"go.bbkane.com/enventory/app"
-	"go.bbkane.com/enventory/app/tracedapp"
 	"go.bbkane.com/enventory/models"
 	"go.bbkane.com/motel"
 	"go.bbkane.com/warg/completion"
@@ -120,7 +119,7 @@ func widthFlag() wargcore.FlagMap {
 	}
 }
 
-func completeExistingEnvName(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error) {
+func completeExistingEnvName(ctx context.Context, es models.Service, cmdCtx wargcore.Context) (*completion.Candidates, error) {
 	// TODO: should this use expr?
 	envs, err := es.EnvList(ctx, models.EnvListArgs{Expr: nil})
 	if err != nil {
@@ -152,7 +151,7 @@ func envNameFlag() wargcore.Flag {
 }
 
 func completeExistingEnvVarName(
-	ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error) {
+	ctx context.Context, es models.Service, cmdCtx wargcore.Context) (*completion.Candidates, error) {
 	// no completions if we can't get the env name
 	envNamePtr := ptrFromMap[string](cmdCtx.Flags, "--env")
 	if envNamePtr == nil {
@@ -177,7 +176,7 @@ func completeExistingEnvVarName(
 }
 
 func completeExistingRefEnvVarName(
-	ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error) {
+	ctx context.Context, es models.Service, cmdCtx wargcore.Context) (*completion.Candidates, error) {
 	// this is quite copy paste (just changed the flag name from --env to --ref-env), but I think I'm feeling lazy
 	envNamePtr := ptrFromMap[string](cmdCtx.Flags, "--ref-env")
 	if envNamePtr == nil {
@@ -212,7 +211,7 @@ func varNameFlag() wargcore.Flag {
 }
 
 func completeExistingVarRefName(
-	ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error) {
+	ctx context.Context, es models.Service, cmdCtx wargcore.Context) (*completion.Candidates, error) {
 	// no completions if we can't get the env name
 	envNamePtr := ptrFromMap[string](cmdCtx.Flags, "--env")
 	if envNamePtr == nil {
@@ -449,7 +448,7 @@ func mustGetWidthArg(pf wargcore.PassedFlags) int {
 //   - a tracer provider (and sets it globally)
 //   - an EnvService ()
 func withSetup(
-	f func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error,
+	f func(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error,
 ) wargcore.Action {
 	return func(cmdCtx wargcore.Context) error {
 
@@ -481,7 +480,7 @@ func withSetup(
 
 		sqliteDSN := cmdCtx.Flags["--db-path"].(path.Path).MustExpand()
 		es, err := app.NewEnvService(ctx, sqliteDSN)
-		es = tracedapp.New(tracedapp.Tracer, es)
+		es = models.New(models.Tracer, es)
 		if err != nil {
 			return fmt.Errorf("could not create env service: %w", err)
 		}
@@ -492,7 +491,7 @@ func withSetup(
 
 // withEnvService wraps a cli.Action to read --db-path and --timeout and create a EnvService
 func withEnvServiceCompletions(
-	f func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) (*completion.Candidates, error),
+	f func(ctx context.Context, es models.Service, cmdCtx wargcore.Context) (*completion.Candidates, error),
 ) wargcore.CompletionCandidatesFunc {
 	return func(cmdCtx wargcore.Context) (*completion.Candidates, error) {
 

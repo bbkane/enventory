@@ -18,9 +18,9 @@ func EnvCreateCmd() wargcore.Command {
 	var createArgs models.EnvCreateArgs
 	return command.New(
 		"Create an environment",
-		withSetup(func(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+		withSetup(func(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 			var env *models.Env
-			err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+			err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 				var err error
 				env, err = es.EnvCreate(ctx, createArgs)
 				if err != nil {
@@ -65,9 +65,9 @@ func EnvDeleteCmd() wargcore.Command {
 	)
 }
 
-func envDelete(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func envDelete(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	name := mustGetNameArg(cmdCtx.Flags)
-	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		err := es.EnvDelete(ctx, name)
 		if err != nil {
 			return fmt.Errorf("could not delete env: %s: %w", name, err)
@@ -120,11 +120,11 @@ func EnvListCmd() wargcore.Command {
 	)
 }
 
-func envList(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func envList(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	var envs []models.Env
 	expr := ptrFromMap[string](cmdCtx.Flags, "--expr")
 
-	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		var err error
 		// TODO: Pass the expr argument - change nil to actual args later
 		envs, err = es.EnvList(ctx, models.EnvListArgs{
@@ -164,7 +164,7 @@ func EnvShowCmd() wargcore.Command {
 	)
 }
 
-func envShow(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func envShow(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	mask := mustGetMaskArg(cmdCtx.Flags)
 	name := mustGetNameArg(cmdCtx.Flags)
 	timezone := mustGetTimezoneArg(cmdCtx.Flags)
@@ -175,7 +175,7 @@ func envShow(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context)
 	var refs []models.VarRef
 	var referencedVars []models.Var
 
-	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		var err error
 		env, err = es.EnvShow(ctx, name)
 		if err != nil {
@@ -220,7 +220,7 @@ func EnvUpdateCmd() wargcore.Command {
 	)
 }
 
-func envUpdate(ctx context.Context, es models.EnvService, cmdCtx wargcore.Context) error {
+func envUpdate(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
 	// common update flags
 	comment := ptrFromMap[string](cmdCtx.Flags, "--comment")
 	createTime := ptrFromMap[time.Time](cmdCtx.Flags, "--create-time")
@@ -229,7 +229,7 @@ func envUpdate(ctx context.Context, es models.EnvService, cmdCtx wargcore.Contex
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
-	err := es.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		err := es.EnvUpdate(ctx, name, models.EnvUpdateArgs{
 			Comment:    comment,
 			CreateTime: createTime,

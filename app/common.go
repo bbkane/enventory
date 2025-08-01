@@ -13,7 +13,7 @@ type EnvService struct {
 	dbtx models.DBTX
 }
 
-func NewEnvService(ctx context.Context, dsn string) (models.EnvService, error) {
+func NewEnvService(ctx context.Context, dsn string) (models.Service, error) {
 	db, err := sqliteconnect.Connect(ctx, dsn)
 	if err != nil {
 		return nil, fmt.Errorf("could not init db: %w", err)
@@ -23,7 +23,7 @@ func NewEnvService(ctx context.Context, dsn string) (models.EnvService, error) {
 	}, nil
 }
 
-func (e *EnvService) WithTx(ctx context.Context, fn func(ctx context.Context, es models.EnvService) error) error {
+func (e *EnvService) WithTx(ctx context.Context, fn func(ctx context.Context, es models.Service) error) error {
 	// TODO: make a WithReadOnlyTx too. Check error handling.
 	// I could use https://www.reddit.com/r/golang/comments/16xswxd/concurrency_when_writing_data_into_sqlite/
 	// but I really like just having a single file. I only expect one user at a time anyway.

@@ -110,7 +110,7 @@ type DBTX interface {
 	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
 }
 
-type EnvService interface {
+type Service interface {
 	EnvCreate(ctx context.Context, args EnvCreateArgs) (*Env, error)
 	EnvDelete(ctx context.Context, name string) error
 	EnvList(ctx context.Context, args EnvListArgs) ([]Env, error)
@@ -130,5 +130,5 @@ type EnvService interface {
 	VarRefShow(ctx context.Context, envName string, name string) (*VarRef, *Var, error)
 	VarRefUpdate(ctx context.Context, envName string, name string, args VarRefUpdateArgs) error
 
-	WithTx(ctx context.Context, fn func(ctx context.Context, es EnvService) error) error
+	WithTx(ctx context.Context, fn func(ctx context.Context, es Service) error) error
 }

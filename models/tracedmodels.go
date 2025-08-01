@@ -1,10 +1,9 @@
-package tracedapp
+package models
 
 import (
 	"context"
 	"fmt"
 
-	"go.bbkane.com/enventory/models"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -12,43 +11,44 @@ import (
 )
 
 //nolint:gochecknoglobals  // this is a global tracer for the package
-var Tracer = otel.Tracer("go.bbkane.com/enventory/tracedapp")
+var Tracer = otel.Tracer("go.bbkane.com/enventory/models")
 
 func ptrToString[T any](v *T) string {
+	// TODO: this coudl probably be faster...
 	if v == nil {
 		return "<nil>"
 	}
 	return fmt.Sprint(v)
 }
 
-type TracedApp struct {
+type TracedService struct {
 	tracer trace.Tracer
-	models.EnvService
+	Service
 }
 
-func New(tracer trace.Tracer, envService models.EnvService) *TracedApp {
-	return &TracedApp{
-		tracer:     tracer,
-		EnvService: envService,
+func New(tracer trace.Tracer, envService Service) *TracedService {
+	return &TracedService{
+		tracer:  tracer,
+		Service: envService,
 	}
 }
 
 // -- Env
 
-func (t *TracedApp) EnvCreate(ctx context.Context, args models.EnvCreateArgs) (*models.Env, error) {
+func (t *TracedService) EnvCreate(ctx context.Context, args EnvCreateArgs) (*Env, error) {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"EnvCreate",
 		trace.WithAttributes(
 			attribute.String("args.Name", args.Name),
 			attribute.String("args.Comment", args.Comment),
-			attribute.String("args.CreateTime", models.TimeToString(args.CreateTime)),
-			attribute.String("args.UpdateTime", models.TimeToString(args.UpdateTime)),
+			attribute.String("args.CreateTime", TimeToString(args.CreateTime)),
+			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
 		),
 	)
 	defer span.End()
 
-	env, err := t.EnvService.EnvCreate(ctx, args)
+	env, err := t.Service.EnvCreate(ctx, args)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -57,11 +57,11 @@ func (t *TracedApp) EnvCreate(ctx context.Context, args models.EnvCreateArgs) (*
 	return env, err
 }
 
-func (t *TracedApp) EnvDelete(ctx context.Context, name string) error {
+func (t *TracedService) EnvDelete(ctx context.Context, name string) error {
 	ctx, span := t.tracer.Start(ctx, "EnvDelete", trace.WithAttributes(attribute.String("name", name)))
 	defer span.End()
 
-	err := t.EnvService.EnvDelete(ctx, name)
+	err := t.Service.EnvDelete(ctx, name)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -70,13 +70,13 @@ func (t *TracedApp) EnvDelete(ctx context.Context, name string) error {
 	return err
 }
 
-func (t *TracedApp) EnvList(ctx context.Context, args models.EnvListArgs) ([]models.Env, error) {
+func (t *TracedService) EnvList(ctx context.Context, args EnvListArgs) ([]Env, error) {
 	ctx, span := t.tracer.Start(ctx, "EnvList", trace.WithAttributes(
 		attribute.String("args.Expr", ptrToString(args.Expr)),
 	))
 	defer span.End()
 
-	envs, err := t.EnvService.EnvList(ctx, args)
+	envs, err := t.Service.EnvList(ctx, args)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -85,7 +85,7 @@ func (t *TracedApp) EnvList(ctx context.Context, args models.EnvListArgs) ([]mod
 	return envs, err
 }
 
-func (t *TracedApp) EnvUpdate(ctx context.Context, name string, args models.EnvUpdateArgs) error {
+func (t *TracedService) EnvUpdate(ctx context.Context, name string, args EnvUpdateArgs) error {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"EnvUpdate",
@@ -93,13 +93,13 @@ func (t *TracedApp) EnvUpdate(ctx context.Context, name string, args models.EnvU
 			attribute.String("name", name),
 			attribute.String("args.Name", ptrToString(args.Name)),
 			attribute.String("args.Comment", ptrToString(args.Comment)),
-			attribute.String("args.CreateTime", ptrToString(models.TimePtrToStringPtr(args.CreateTime))),
-			attribute.String("args.UpdateTime", ptrToString(models.TimePtrToStringPtr(args.UpdateTime))),
+			attribute.String("args.CreateTime", ptrToString(TimePtrToStringPtr(args.CreateTime))),
+			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
 		),
 	)
 	defer span.End()
 
-	err := t.EnvService.EnvUpdate(ctx, name, args)
+	err := t.Service.EnvUpdate(ctx, name, args)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -108,11 +108,11 @@ func (t *TracedApp) EnvUpdate(ctx context.Context, name string, args models.EnvU
 	return err
 }
 
-func (t *TracedApp) EnvShow(ctx context.Context, name string) (*models.Env, error) {
+func (t *TracedService) EnvShow(ctx context.Context, name string) (*Env, error) {
 	ctx, span := t.tracer.Start(ctx, "EnvShow", trace.WithAttributes(attribute.String("name", name)))
 	defer span.End()
 
-	env, err := t.EnvService.EnvShow(ctx, name)
+	env, err := t.Service.EnvShow(ctx, name)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -123,7 +123,7 @@ func (t *TracedApp) EnvShow(ctx context.Context, name string) (*models.Env, erro
 
 // -- Var
 
-func (t *TracedApp) VarCreate(ctx context.Context, args models.VarCreateArgs) (*models.Var, error) {
+func (t *TracedService) VarCreate(ctx context.Context, args VarCreateArgs) (*Var, error) {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarCreate",
@@ -132,13 +132,13 @@ func (t *TracedApp) VarCreate(ctx context.Context, args models.VarCreateArgs) (*
 			attribute.String("args.Name", args.Name),
 			// attribute.String("args.Value", args.Value), // can be sensitive
 			attribute.String("args.Comment", args.Comment),
-			attribute.String("args.CreateTime", models.TimeToString(args.CreateTime)),
-			attribute.String("args.UpdateTime", models.TimeToString(args.UpdateTime)),
+			attribute.String("args.CreateTime", TimeToString(args.CreateTime)),
+			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
 		),
 	)
 	defer span.End()
 
-	variable, err := t.EnvService.VarCreate(ctx, args)
+	variable, err := t.Service.VarCreate(ctx, args)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -147,7 +147,7 @@ func (t *TracedApp) VarCreate(ctx context.Context, args models.VarCreateArgs) (*
 	return variable, err
 }
 
-func (t *TracedApp) VarDelete(ctx context.Context, envName string, name string) error {
+func (t *TracedService) VarDelete(ctx context.Context, envName string, name string) error {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarDelete",
@@ -158,7 +158,7 @@ func (t *TracedApp) VarDelete(ctx context.Context, envName string, name string) 
 	)
 	defer span.End()
 
-	err := t.EnvService.VarDelete(ctx, envName, name)
+	err := t.Service.VarDelete(ctx, envName, name)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -167,7 +167,7 @@ func (t *TracedApp) VarDelete(ctx context.Context, envName string, name string) 
 	return err
 }
 
-func (t *TracedApp) VarList(ctx context.Context, envName string) ([]models.Var, error) {
+func (t *TracedService) VarList(ctx context.Context, envName string) ([]Var, error) {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarList",
@@ -175,7 +175,7 @@ func (t *TracedApp) VarList(ctx context.Context, envName string) ([]models.Var, 
 	)
 	defer span.End()
 
-	vars, err := t.EnvService.VarList(ctx, envName)
+	vars, err := t.Service.VarList(ctx, envName)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -184,7 +184,7 @@ func (t *TracedApp) VarList(ctx context.Context, envName string) ([]models.Var, 
 	return vars, err
 }
 
-func (t *TracedApp) VarUpdate(ctx context.Context, envName string, name string, args models.VarUpdateArgs) error {
+func (t *TracedService) VarUpdate(ctx context.Context, envName string, name string, args VarUpdateArgs) error {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarUpdate",
@@ -194,13 +194,13 @@ func (t *TracedApp) VarUpdate(ctx context.Context, envName string, name string, 
 			attribute.String("args.Name", ptrToString(args.Name)),
 			// attribute.String("args.Value", ptrToString(args.Value)),  // can be sensitive
 			attribute.String("args.Comment", ptrToString(args.Comment)),
-			attribute.String("args.CreateTime", ptrToString(models.TimePtrToStringPtr(args.CreateTime))),
-			attribute.String("args.UpdateTime", ptrToString(models.TimePtrToStringPtr(args.UpdateTime))),
+			attribute.String("args.CreateTime", ptrToString(TimePtrToStringPtr(args.CreateTime))),
+			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
 		),
 	)
 	defer span.End()
 
-	err := t.EnvService.VarUpdate(ctx, envName, name, args)
+	err := t.Service.VarUpdate(ctx, envName, name, args)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -209,7 +209,7 @@ func (t *TracedApp) VarUpdate(ctx context.Context, envName string, name string, 
 	return err
 }
 
-func (t *TracedApp) VarShow(ctx context.Context, envName string, name string) (*models.Var, []models.VarRef, error) {
+func (t *TracedService) VarShow(ctx context.Context, envName string, name string) (*Var, []VarRef, error) {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarShow",
@@ -220,7 +220,7 @@ func (t *TracedApp) VarShow(ctx context.Context, envName string, name string) (*
 	)
 	defer span.End()
 
-	variable, refs, err := t.EnvService.VarShow(ctx, envName, name)
+	variable, refs, err := t.Service.VarShow(ctx, envName, name)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -231,7 +231,7 @@ func (t *TracedApp) VarShow(ctx context.Context, envName string, name string) (*
 
 // -- VarRef
 
-func (t *TracedApp) VarRefCreate(ctx context.Context, args models.VarRefCreateArgs) (*models.VarRef, error) {
+func (t *TracedService) VarRefCreate(ctx context.Context, args VarRefCreateArgs) (*VarRef, error) {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarRefCreate",
@@ -239,15 +239,15 @@ func (t *TracedApp) VarRefCreate(ctx context.Context, args models.VarRefCreateAr
 			attribute.String("args.EnvName", args.EnvName),
 			attribute.String("args.Name", args.Name),
 			attribute.String("args.Comment", args.Comment),
-			attribute.String("args.CreateTime", models.TimeToString(args.CreateTime)),
-			attribute.String("args.UpdateTime", models.TimeToString(args.UpdateTime)),
+			attribute.String("args.CreateTime", TimeToString(args.CreateTime)),
+			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
 			attribute.String("args.RefEnvName", args.RefEnvName),
 			attribute.String("args.RefVarName", args.RefVarName),
 		),
 	)
 	defer span.End()
 
-	varRef, err := t.EnvService.VarRefCreate(ctx, args)
+	varRef, err := t.Service.VarRefCreate(ctx, args)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -256,7 +256,7 @@ func (t *TracedApp) VarRefCreate(ctx context.Context, args models.VarRefCreateAr
 	return varRef, err
 }
 
-func (t *TracedApp) VarRefDelete(ctx context.Context, envName string, name string) error {
+func (t *TracedService) VarRefDelete(ctx context.Context, envName string, name string) error {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarRefDelete",
@@ -267,7 +267,7 @@ func (t *TracedApp) VarRefDelete(ctx context.Context, envName string, name strin
 	)
 	defer span.End()
 
-	err := t.EnvService.VarRefDelete(ctx, envName, name)
+	err := t.Service.VarRefDelete(ctx, envName, name)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -276,7 +276,7 @@ func (t *TracedApp) VarRefDelete(ctx context.Context, envName string, name strin
 	return err
 }
 
-func (t *TracedApp) VarRefList(ctx context.Context, envName string) ([]models.VarRef, []models.Var, error) {
+func (t *TracedService) VarRefList(ctx context.Context, envName string) ([]VarRef, []Var, error) {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarRefList",
@@ -284,7 +284,7 @@ func (t *TracedApp) VarRefList(ctx context.Context, envName string) ([]models.Va
 	)
 	defer span.End()
 
-	varRefs, vars, err := t.EnvService.VarRefList(ctx, envName)
+	varRefs, vars, err := t.Service.VarRefList(ctx, envName)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -293,7 +293,7 @@ func (t *TracedApp) VarRefList(ctx context.Context, envName string) ([]models.Va
 	return varRefs, vars, err
 }
 
-func (t *TracedApp) VarRefShow(ctx context.Context, envName string, name string) (*models.VarRef, *models.Var, error) {
+func (t *TracedService) VarRefShow(ctx context.Context, envName string, name string) (*VarRef, *Var, error) {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarRefShow",
@@ -304,7 +304,7 @@ func (t *TracedApp) VarRefShow(ctx context.Context, envName string, name string)
 	)
 	defer span.End()
 
-	varRef, varRefVar, err := t.EnvService.VarRefShow(ctx, envName, name)
+	varRef, varRefVar, err := t.Service.VarRefShow(ctx, envName, name)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -313,7 +313,7 @@ func (t *TracedApp) VarRefShow(ctx context.Context, envName string, name string)
 	return varRef, varRefVar, err
 }
 
-func (t *TracedApp) VarRefUpdate(ctx context.Context, envName string, name string, args models.VarRefUpdateArgs) error {
+func (t *TracedService) VarRefUpdate(ctx context.Context, envName string, name string, args VarRefUpdateArgs) error {
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarRefUpdate",
@@ -322,15 +322,15 @@ func (t *TracedApp) VarRefUpdate(ctx context.Context, envName string, name strin
 			attribute.String("name", name),
 			attribute.String("args.Name", ptrToString(args.Name)),
 			attribute.String("args.Comment", ptrToString(args.Comment)),
-			attribute.String("args.CreateTime", ptrToString(models.TimePtrToStringPtr(args.CreateTime))),
-			attribute.String("args.UpdateTime", ptrToString(models.TimePtrToStringPtr(args.UpdateTime))),
+			attribute.String("args.CreateTime", ptrToString(TimePtrToStringPtr(args.CreateTime))),
+			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
 			attribute.String("args.RefEnvName", ptrToString(args.RefEnvName)),
 			attribute.String("args.RefVarName", ptrToString(args.RefVarName)),
 		),
 	)
 	defer span.End()
 
-	err := t.EnvService.VarRefUpdate(ctx, envName, name, args)
+	err := t.Service.VarRefUpdate(ctx, envName, name, args)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -341,11 +341,11 @@ func (t *TracedApp) VarRefUpdate(ctx context.Context, envName string, name strin
 
 // -- WithTx
 
-func (t *TracedApp) WithTx(ctx context.Context, fn func(ctx context.Context, es models.EnvService) error) error {
+func (t *TracedService) WithTx(ctx context.Context, fn func(ctx context.Context, es Service) error) error {
 	ctx, span := t.tracer.Start(ctx, "WithTx")
 	defer span.End()
 
-	err := t.EnvService.WithTx(ctx, func(ctx context.Context, es models.EnvService) error {
+	err := t.Service.WithTx(ctx, func(ctx context.Context, es Service) error {
 		// Wrap the EnvService with tracing.
 		tracedES := New(t.tracer, es)
 
