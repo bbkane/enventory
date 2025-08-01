@@ -480,7 +480,7 @@ func withSetup(
 
 		sqliteDSN := cmdCtx.Flags["--db-path"].(path.Path).MustExpand()
 		es, err := app.NewEnvService(ctx, sqliteDSN)
-		es = models.New(models.Tracer, es)
+		es = models.NewTracedService(models.Tracer, es)
 		if err != nil {
 			return fmt.Errorf("could not create env service: %w", err)
 		}

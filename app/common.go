@@ -14,12 +14,12 @@ type EnvService struct {
 }
 
 func NewEnvService(ctx context.Context, dsn string) (models.Service, error) {
-	db, err := sqliteconnect.Connect(ctx, dsn)
+	dbtx, err := sqliteconnect.Connect(ctx, dsn)
 	if err != nil {
 		return nil, fmt.Errorf("could not init db: %w", err)
 	}
 	return &EnvService{
-		dbtx: db,
+		dbtx: models.NewTracedDBTX(models.Tracer, dbtx),
 	}, nil
 }
 
@@ -27,9 +27,17 @@ func (e *EnvService) WithTx(ctx context.Context, fn func(ctx context.Context, es
 	// TODO: make a WithReadOnlyTx too. Check error handling.
 	// I could use https://www.reddit.com/r/golang/comments/16xswxd/concurrency_when_writing_data_into_sqlite/
 	// but I really like just having a single file. I only expect one user at a time anyway.
-	db, ok := e.dbtx.(*sql.DB)
+
+	// This really breaks the encapsulation of the EnvService, but I need to begin a transaction. Maybe I'll find a better way later
+	var dbtx models.DBTX
+	if tx, ok := e.dbtx.(*models.TracedDBTX); ok {
+		dbtx = tx.Unwrap()
+	} else {
+		dbtx = e.dbtx
+	}
+	db, ok := dbtx.(*sql.DB)
 	if !ok {
-		panic("EnvService.dbtx is not a *sql.DB, cannot begin transaction. Maybe you tried to next WithTx?")
+		panic("EnvService.dbtx is not a *sql.DB, cannot begin transaction. Maybe you tried to nest WithTx?")
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -37,7 +45,7 @@ func (e *EnvService) WithTx(ctx context.Context, fn func(ctx context.Context, es
 	}
 	defer tx.Rollback() //nolint:errcheck
 
-	es := &EnvService{dbtx: tx}
+	es := &EnvService{dbtx: models.NewTracedDBTX(models.Tracer, tx)}
 	if err := fn(ctx, es); err != nil {
 		return fmt.Errorf("error in transaction: %w", err)
 	}

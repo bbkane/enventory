@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"go.opentelemetry.io/otel"
@@ -14,19 +15,95 @@ import (
 var Tracer = otel.Tracer("go.bbkane.com/enventory/models")
 
 func ptrToString[T any](v *T) string {
-	// TODO: this coudl probably be faster...
+	// TODO: this could probably be faster...
 	if v == nil {
 		return "<nil>"
 	}
 	return fmt.Sprint(v)
 }
 
+// -- TracedDBTX
+type TracedDBTX struct {
+	tracer trace.Tracer
+	DBTX
+}
+
+func NewTracedDBTX(tracer trace.Tracer, dbtx DBTX) *TracedDBTX {
+	return &TracedDBTX{
+		tracer: tracer,
+		DBTX:   dbtx,
+	}
+}
+
+var _ DBTX = (*TracedDBTX)(nil)
+
+func (t *TracedDBTX) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
+	ctx, span := t.tracer.Start(ctx, "ExecContext", trace.WithAttributes(
+		attribute.String("query", query),
+	))
+	defer span.End()
+	result, err := t.DBTX.ExecContext(ctx, query, args...)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+	return result, err
+}
+
+func (t *TracedDBTX) PrepareContext(ctx context.Context, query string) (*sql.Stmt, error) {
+	ctx, span := t.tracer.Start(ctx, "PrepareContext", trace.WithAttributes(
+		attribute.String("query", query),
+	))
+	defer span.End()
+	stmt, err := t.DBTX.PrepareContext(ctx, query)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+	return stmt, err
+}
+
+func (t *TracedDBTX) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+	ctx, span := t.tracer.Start(ctx, "QueryContext", trace.WithAttributes(
+		attribute.String("query", query),
+	))
+	defer span.End()
+	rows, err := t.DBTX.QueryContext(ctx, query, args...)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+	return rows, err
+}
+
+func (t *TracedDBTX) QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row {
+	ctx, span := t.tracer.Start(ctx, "QueryRowContext", trace.WithAttributes(
+		attribute.String("query", query),
+	))
+	defer span.End()
+	row := t.DBTX.QueryRowContext(ctx, query, args...)
+	if row.Err() != nil {
+		span.RecordError(row.Err())
+		span.SetStatus(codes.Error, row.Err().Error())
+	}
+	return row
+}
+
+// Unwrap the TracedDBTX to get the underlying DBTX. Needed to start a transaction.
+func (t *TracedDBTX) Unwrap() DBTX {
+	return t.DBTX
+}
+
+// -- TracedService
+
 type TracedService struct {
 	tracer trace.Tracer
 	Service
 }
 
-func New(tracer trace.Tracer, envService Service) *TracedService {
+var _ Service = (*TracedService)(nil)
+
+func NewTracedService(tracer trace.Tracer, envService Service) *TracedService {
 	return &TracedService{
 		tracer:  tracer,
 		Service: envService,
@@ -347,7 +424,7 @@ func (t *TracedService) WithTx(ctx context.Context, fn func(ctx context.Context,
 
 	err := t.Service.WithTx(ctx, func(ctx context.Context, es Service) error {
 		// Wrap the EnvService with tracing.
-		tracedES := New(t.tracer, es)
+		tracedES := NewTracedService(t.tracer, es)
 
 		return fn(ctx, tracedES)
 	})
