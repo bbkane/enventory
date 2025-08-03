@@ -5,6 +5,18 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Note the the latest version is usually work in progress and may have not yet been released.
 
+# v0.0.22
+
+## Added
+
+- Debug `enventory` with OTEL tracing:
+
+```bash
+MOTEL_TRACES_EXPORTER=stdout go run . env show
+```
+
+See the [motel repo](https://github.com/bbkane/motel) for other ways to visualize OTEL traces
+
 # v0.0.21
 
 ## Added

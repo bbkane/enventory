@@ -70,3 +70,13 @@ tbls doc --rm-dist
 go generate ./...
 ```
 
+### Export OTEL traces!
+
+Debug `enventory` with OTEL tracing:
+
+```bash
+MOTEL_TRACES_EXPORTER=stdout go run . env show
+```
+
+See the [motel repo](https://github.com/bbkane/motel) for other ways to visualize OTEL traces
+
