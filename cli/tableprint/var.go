@@ -10,7 +10,7 @@ func VarShowPrint(c CommonTablePrintArgs, envVar models.Var, envRefs []models.Va
 
 	switch c.Format {
 	case Format_Table:
-		t := newKeyValueTable(c.W, c.DesiredMaxWidth, len("CreateTime"))
+		t := newKeyValueTable(c.W, c.DesiredMaxWidth)
 		createTime := formatTime(envVar.CreateTime, c.Tz)
 		updateTime := formatTime(envVar.UpdateTime, c.Tz)
 		t.Section(
@@ -26,7 +26,7 @@ func VarShowPrint(c CommonTablePrintArgs, envVar models.Var, envRefs []models.Va
 		if len(envRefs) > 0 {
 			fmt.Fprintln(c.W, "EnvRefs")
 
-			t := newKeyValueTable(c.W, c.DesiredMaxWidth, len("Comment"))
+			t := newKeyValueTable(c.W, c.DesiredMaxWidth)
 			for _, e := range envRefs {
 				t.Section(
 					newRow("EnvName", e.EnvName),

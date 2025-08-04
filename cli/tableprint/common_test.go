@@ -68,7 +68,7 @@ func TestTableTruncation(t *testing.T) {
 `
 
 	buf := new(bytes.Buffer)
-	tw := newKeyValueTable(buf, 14, len("key"))
+	tw := newKeyValueTable(buf, 14)
 	tw.Section(
 		newRow("key", "value"),
 	)
@@ -91,7 +91,7 @@ func TestTableTruncationNoTruncate(t *testing.T) {
 `
 
 	buf := new(bytes.Buffer)
-	tw := newKeyValueTable(buf, 15, len("key"))
+	tw := newKeyValueTable(buf, 15)
 	tw.Section(
 		newRow("key", "value"),
 	)
@@ -114,7 +114,7 @@ func TestTableTruncationToNarrow(t *testing.T) {
 `
 
 	buf := new(bytes.Buffer)
-	tw := newKeyValueTable(buf, 5, len("key"))
+	tw := newKeyValueTable(buf, 5)
 	tw.Section(
 		newRow("key", "value"),
 	)

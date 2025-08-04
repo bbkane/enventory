@@ -10,7 +10,7 @@ func VarRefShowPrint(c CommonTablePrintArgs, envRef models.VarRef, envVar models
 
 	switch c.Format {
 	case Format_Table:
-		t := newKeyValueTable(c.W, c.DesiredMaxWidth, len("RefVarValue"))
+		t := newKeyValueTable(c.W, c.DesiredMaxWidth)
 		createTime := formatTime(envRef.CreateTime, c.Tz)
 		updateTime := formatTime(envRef.UpdateTime, c.Tz)
 		t.Section(

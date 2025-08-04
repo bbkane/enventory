@@ -88,9 +88,13 @@ func newRow(key string, value string, opts ...rowOpt) row {
 	return r
 }
 
+type section []row
+
 type keyValueTable struct {
-	t               table.Writer
-	truncationWidth int
+	sections        []section
+	maxKeyWidth     int
+	w               io.Writer
+	desiredMaxWidth int
 }
 
 // newKeyValueTable creates a new table and tries to fit it into desiredMaxWidth
@@ -98,39 +102,54 @@ type keyValueTable struct {
 //
 //	width = len(key) + len(truncated_value) + len(padding)
 //
-// if desiredMaxWidth < len(key) + len(truncated_value) + len(padding) , it is ignored.
-func newKeyValueTable(w io.Writer, desiredMaxWidth int, maxKeyWidth int) *keyValueTable {
+// If desiredMaxWidth < len(key) + len(truncated_value) + len(padding) , it is ignored.
+func newKeyValueTable(w io.Writer, desiredMaxWidth int) *keyValueTable {
+	return &keyValueTable{
+		sections:        nil,
+		maxKeyWidth:     0,
+		w:               w,
+		desiredMaxWidth: desiredMaxWidth,
+	}
+}
+
+func (k *keyValueTable) Section(rows ...row) {
+	sec := make(section, 0, len(rows))
+	for _, e := range rows {
+		if !e.Skip {
+			if len(e.Key) > k.maxKeyWidth {
+				k.maxKeyWidth = len(e.Key)
+			}
+			sec = append(sec, e)
+		}
+	}
+	if len(sec) > 0 {
+		k.sections = append(k.sections, sec)
+	}
+}
+
+func (k *keyValueTable) Render() {
 	t := table.NewWriter()
 	t.SetStyle(table.StyleRounded)
-	t.SetOutputMirror(w)
+	t.SetOutputMirror(k.w)
 
 	// ╭─────────┬───────────╮
 	// 12--key--345--value--67
 	// ╰─────────┴───────────╯
 	const tablePadding = 7
 
-	truncationWidth := desiredMaxWidth - maxKeyWidth - tablePadding
-	if truncationWidth < 0 || desiredMaxWidth == 0 {
+	truncationWidth := k.desiredMaxWidth - k.maxKeyWidth - tablePadding
+	if truncationWidth < 0 || k.desiredMaxWidth == 0 {
 		truncationWidth = 0
 	}
-	return &keyValueTable{
-		t:               t,
-		truncationWidth: truncationWidth,
-	}
-}
 
-func (k *keyValueTable) Section(rows ...row) {
-	for _, e := range rows {
-		if !e.Skip {
-			k.t.AppendRow(table.Row{
-				e.Key,
-				truncate(e.Value, k.truncationWidth),
+	for _, sec := range k.sections {
+		for _, r := range sec {
+			t.AppendRow(table.Row{
+				r.Key,
+				truncate(r.Value, truncationWidth),
 			})
 		}
+		t.AppendSeparator()
 	}
-	k.t.AppendSeparator()
-}
-
-func (k *keyValueTable) Render() {
-	k.t.Render()
+	t.Render()
 }

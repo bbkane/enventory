@@ -17,6 +17,10 @@ MOTEL_TRACES_EXPORTER=stdout go run . env show
 
 See the [motel repo](https://github.com/bbkane/motel) for other ways to visualize OTEL traces
 
+## Fixed
+
+- Fix output tables for better dynamic width calculation (fixes #108)
+
 # v0.0.21
 
 ## Added

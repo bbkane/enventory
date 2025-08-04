@@ -8,7 +8,7 @@ import (
 
 func EnvList(c CommonTablePrintArgs, envs []models.Env) {
 	if len(envs) > 0 {
-		t := newKeyValueTable(c.W, c.DesiredMaxWidth, len("CreateTime"))
+		t := newKeyValueTable(c.W, c.DesiredMaxWidth)
 		for _, e := range envs {
 			createTime := formatTime(e.CreateTime, c.Tz)
 			updateTime := formatTime(e.UpdateTime, c.Tz)
@@ -36,7 +36,7 @@ func EnvShowRun(
 	case Format_Table:
 		fmt.Fprintln(c.W, "Env")
 
-		t := newKeyValueTable(c.W, c.DesiredMaxWidth, len("CreateTime"))
+		t := newKeyValueTable(c.W, c.DesiredMaxWidth)
 		createTime := formatTime(env.CreateTime, c.Tz)
 		updateTime := formatTime(env.UpdateTime, c.Tz)
 		t.Section(
@@ -50,7 +50,8 @@ func EnvShowRun(
 		if len(localvars) > 0 {
 			fmt.Fprintln(c.W, "Vars")
 
-			t := newKeyValueTable(c.W, c.DesiredMaxWidth, len("Comment"))
+			// TODO: need to redesign this to dynamically compute the length of the longest key because some keys can be skipped (like "Comment" here)
+			t := newKeyValueTable(c.W, c.DesiredMaxWidth)
 			for _, e := range localvars {
 				t.Section(
 					newRow("Name", e.Name),
@@ -63,7 +64,7 @@ func EnvShowRun(
 
 		if len(refs) > 0 {
 			fmt.Fprintln(c.W, "Refs")
-			t := newKeyValueTable(c.W, c.DesiredMaxWidth, len("CreateTime"))
+			t := newKeyValueTable(c.W, c.DesiredMaxWidth)
 
 			for i := range len(refs) {
 				t.Section(
