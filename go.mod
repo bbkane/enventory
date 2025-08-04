@@ -7,7 +7,7 @@ toolchain go1.24.5
 require (
 	al.essio.dev/pkg/shellescape v1.6.0
 	github.com/expr-lang/expr v1.17.5
-	github.com/jedib0t/go-pretty/v6 v6.6.7
+	github.com/jedib0t/go-pretty/v6 v6.6.8
 	github.com/stretchr/testify v1.10.0
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	go.bbkane.com/motel v0.0.2
