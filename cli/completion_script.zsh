@@ -1,62 +1,72 @@
-#compdef enventory
+#compdef _enventory enventory export-env unexport-env
 
-# date >> ~/_enventory_completion.log
+_enventory() {
+    # date >> ~/_enventory_completion.log
 
-local -a comp_values=()
-local -a comp_descriptions=()
-local -a comp_type
-local line
+    local -a comp_values=()
+    local -a comp_descriptions=()
+    local -a comp_type
+    local line
 
-local -a output
-output=("${(@f)$(${words[1]} --completion-zsh "${(@)words[2,$CURRENT]}")}")
-
-# Check if we got any output
-[[ ${#output} -eq 0 ]] && return 1
-
-# First line is the type
-comp_type="${output[1]}"
-
-# Log type
-# echo "TYPE: $comp_type" >> ~/_enventory_completion.log
-
-# Process based on type
-case "$comp_type" in
-    COMPLETION_TYPE_DIRECTORIES)
-        _files -/
+    local -a output
+    case "$service" in
+        enventory)
+            output=("${(@f)$(${words[1]} --completion-zsh "${(@)words[2,$CURRENT]}")}")
         ;;
 
-    COMPLETION_TYPE_DIRECTORIES_FILES)
-        _files
+    export-env | unexport-env)
+            output=("${(@f)$(enventory --completion-zsh env show --name '')}")
         ;;
+    esac
 
-    COMPLETION_TYPE_NONE)
-        return 0
-        ;;
+    # Check if we got any output
+    [[ ${#output} -eq 0 ]] && return 1
 
-    COMPLETION_TYPE_VALUES)
-        local i=2
-        while (( i <= ${#output} )); do
-            comp_values+=("${output[i]}")
-            (( i++ ))
-        done
-        compadd -a comp_values
-        ;;
+    # First line is the type
+    comp_type="${output[1]}"
 
-    COMPLETION_TYPE_VALUES_DESCRIPTIONS)
-        local i=2
-        while (( i <= ${#output} )); do
-            comp_values+=("${output[i]}")
-            (( i++ ))
-            if (( i <= ${#output} )); then
-                comp_descriptions+=("${output[i]}")
+    # Log type
+    # echo "TYPE: $comp_type" >> ~/_enventory_completion.log
+
+    # Process based on type
+    case "$comp_type" in
+        COMPLETION_TYPE_DIRECTORIES)
+            _files -/
+            ;;
+
+        COMPLETION_TYPE_DIRECTORIES_FILES)
+            _files
+            ;;
+
+        COMPLETION_TYPE_NONE)
+            return 0
+            ;;
+
+        COMPLETION_TYPE_VALUES)
+            local i=2
+            while (( i <= ${#output} )); do
+                comp_values+=("${output[i]}")
                 (( i++ ))
-            fi
-        done
-        compadd -d comp_descriptions -a comp_values
-        ;;
+            done
+            compadd -a comp_values
+            ;;
 
-    *)
-        # echo "Unknown completion type: $comp_type" >> ~/_enventory_completion.log
-        return 1
-        ;;
-esac
+        COMPLETION_TYPE_VALUES_DESCRIPTIONS)
+            local i=2
+            while (( i <= ${#output} )); do
+                comp_values+=("${output[i]}")
+                (( i++ ))
+                if (( i <= ${#output} )); then
+                    comp_descriptions+=("${output[i]}")
+                    (( i++ ))
+                fi
+            done
+            compadd -d comp_descriptions -a comp_values
+            ;;
+
+        *)
+            # echo "Unknown completion type: $comp_type" >> ~/_enventory_completion.log
+            return 1
+            ;;
+    esac
+}

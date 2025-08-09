@@ -80,3 +80,6 @@ MOTEL_TRACES_EXPORTER=stdout go run . env show
 
 See the [motel repo](https://github.com/bbkane/motel) for other ways to visualize OTEL traces
 
+### Manually test custom completions
+
+See [`warg`s instructions](https://github.com/bbkane/warg/tree/master/completion)
