@@ -116,6 +116,7 @@ func EnvListCmd() wargcore.Command {
 			"Expression to filter environments",
 			scalar.String(),
 			flag.EnvVars("ENVENTORY_ENV_LIST_EXPR"),
+			flag.UnsetSentinel("UNSET"),
 		),
 	)
 }
