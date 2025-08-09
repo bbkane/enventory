@@ -145,7 +145,7 @@ func envNameFlag() wargcore.Flag {
 			scalar.Default(cwd),
 		),
 		flag.Required(),
-		flag.CompletionCandidates(withEnvServiceCompletions(
+		flag.Completions(withEnvServiceCompletions(
 			completeExistingEnvName)),
 	)
 }
@@ -205,7 +205,7 @@ func varNameFlag() wargcore.Flag {
 		"Env var name",
 		scalar.String(),
 		flag.Required(),
-		flag.CompletionCandidates(withEnvServiceCompletions(
+		flag.Completions(withEnvServiceCompletions(
 			completeExistingEnvVarName)),
 	)
 }
@@ -240,7 +240,7 @@ func varRefNameFlag() wargcore.Flag {
 		"Var ref name",
 		scalar.String(),
 		flag.Required(),
-		flag.CompletionCandidates(withEnvServiceCompletions(
+		flag.Completions(withEnvServiceCompletions(
 			completeExistingVarRefName)),
 	)
 }
@@ -492,7 +492,7 @@ func withSetup(
 // withEnvService wraps a cli.Action to read --db-path and --timeout and create a EnvService
 func withEnvServiceCompletions(
 	f func(ctx context.Context, es models.Service, cmdCtx wargcore.Context) (*completion.Candidates, error),
-) wargcore.CompletionCandidatesFunc {
+) wargcore.CompletionsFunc {
 	return func(cmdCtx wargcore.Context) (*completion.Candidates, error) {
 
 		ctx, cancel := context.WithTimeout(

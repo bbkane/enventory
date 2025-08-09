@@ -152,7 +152,7 @@ func TestMainCompletions(t *testing.T) {
 			// add on the blank space the shell would add for us
 			args = append(args, "")
 
-			actualCandidates, actualErr := app.CompletionCandidates(
+			actualCandidates, actualErr := app.Completions(
 				parseopt.Args(args),
 				parseopt.LookupEnv(wargcore.LookupMap(nil)),
 			)

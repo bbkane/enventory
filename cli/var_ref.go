@@ -27,14 +27,14 @@ func VarRefCreateCmd() wargcore.Command {
 			"Environment we're referencing",
 			scalar.String(),
 			flag.Required(),
-			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingEnvName)),
+			flag.Completions(withEnvServiceCompletions(completeExistingEnvName)),
 		),
 		command.NewFlag(
 			"--ref-var",
 			"Variable we're referencing",
 			scalar.String(),
 			flag.Required(),
-			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingRefEnvVarName)),
+			flag.Completions(withEnvServiceCompletions(completeExistingRefEnvVarName)),
 		),
 		command.FlagMap(commonCreateFlagMap()),
 		command.FlagMap(sqliteDSNFlagMap()),
@@ -188,13 +188,13 @@ func VarRefUpdateCmd() wargcore.Command {
 			"--ref-env",
 			"New environment we're referencing",
 			scalar.String(),
-			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingEnvName)),
+			flag.Completions(withEnvServiceCompletions(completeExistingEnvName)),
 		),
 		command.NewFlag(
 			"--ref-var",
 			"New variable we're referencing",
 			scalar.String(),
-			flag.CompletionCandidates(withEnvServiceCompletions(completeExistingRefEnvVarName)),
+			flag.Completions(withEnvServiceCompletions(completeExistingRefEnvVarName)),
 		),
 	)
 }

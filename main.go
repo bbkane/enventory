@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "embed"
+
 	"go.bbkane.com/enventory/cli"
 	"go.bbkane.com/warg"
 	"go.bbkane.com/warg/help"
@@ -11,13 +13,16 @@ import (
 var version string
 
 func buildApp() *wargcli.App {
-
 	app := warg.New(
 		"enventory",
 		version,
 		section.New(
 			"Manage Environmental secrets centrally",
-			section.CommandMap(warg.VersionCommandMap()),
+			section.NewSection(
+				"completion",
+				"Print completion scripts",
+				section.Command("zsh", cli.CompletionZshCmd()),
+			),
 			section.NewSection(
 				"env",
 				"Environment commands",
@@ -56,12 +61,12 @@ func buildApp() *wargcli.App {
 				),
 			),
 		),
-		warg.GlobalFlagMap(warg.ColorFlagMap()),
 		// use "detailed" as the default choice
 		warg.HelpFlag(
 			help.DefaultHelpCommandMap(),
 			help.DefaultHelpFlagMap("detailed", help.DefaultHelpCommandMap().SortedNames()),
 		),
+		warg.SkipCompletionCommands(),
 	)
 	return &app
 }
