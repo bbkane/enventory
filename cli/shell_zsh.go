@@ -10,38 +10,37 @@ import (
 
 	"al.essio.dev/pkg/shellescape"
 	"go.bbkane.com/enventory/models"
-	"go.bbkane.com/warg/command"
-	"go.bbkane.com/warg/flag"
+	"go.bbkane.com/warg"
+
 	"go.bbkane.com/warg/value/scalar"
-	"go.bbkane.com/warg/wargcore"
 )
 
-func ShellZshInitCmd() wargcore.Command {
-	return command.New(
+func ShellZshInitCmd() warg.Cmd {
+	return warg.NewCmd(
 		"Prints the zsh initialization script",
 		shellZshInitRun,
-		command.NewFlag(
+		warg.NewCmdFlag(
 			"--print-autoload",
 			"Include autoload -Uz add-zsh-hook line (might not be needed if you already autoloaded it)",
 			scalar.Bool(
 				scalar.Default(true),
 			),
-			flag.Required(),
+			warg.Required(),
 		),
 		// TODO: actuall use this flag!
-		command.NewFlag(
+		warg.NewCmdFlag(
 			"--chpwd-strategy",
 			"Temporary flag to revert back to the old chpwd strategy if bugs are found with the new one",
 			scalar.String(
 				scalar.Choices("v0.0.19", "v0.0.20"),
 				scalar.Default("v0.0.20"),
 			),
-			flag.Required(),
+			warg.Required(),
 		),
 	)
 }
 
-func shellZshInitRun(cmdCtx wargcore.Context) error {
+func shellZshInitRun(cmdCtx warg.CmdContext) error {
 
 	printAutoload := cmdCtx.Flags["--print-autoload"].(bool)
 	chpwdStrategy := cmdCtx.Flags["--chpwd-strategy"].(string)
@@ -91,51 +90,51 @@ unexport-env() { eval $(enventory shell zsh unexport --env "$1" --no-env-no-prob
 	return nil
 }
 
-func ShellZshExportCmd() wargcore.Command {
-	return command.New(
+func ShellZshExportCmd() warg.Cmd {
+	return warg.NewCmd(
 		"Print export script",
 		withSetup(shellZshExportRun),
-		command.Flag("--env", envNameFlag()),
-		command.FlagMap(timeoutFlagMap()),
-		command.FlagMap(sqliteDSNFlagMap()),
-		command.NewFlag(
+		warg.CmdFlag("--env", envNameFlag()),
+		warg.CmdFlagMap(timeoutFlagMap()),
+		warg.CmdFlagMap(sqliteDSNFlagMap()),
+		warg.NewCmdFlag(
 			"--no-env-no-problem",
 			"Exit without an error if the environment doesn't exit. Useful when runnng envelop on chpwd",
 			scalar.Bool(
 				scalar.Default(false),
 			),
-			flag.Required(),
+			warg.Required(),
 		),
 	)
 }
 
-func shellZshExportRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
+func shellZshExportRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) error {
 	return shellZshExportUnexport(ctx, cmdCtx, es, "export")
 }
 
-func ShellZshUnexportCmd() wargcore.Command {
-	return command.New(
+func ShellZshUnexportCmd() warg.Cmd {
+	return warg.NewCmd(
 		"Print unexport script",
 		withSetup(shellZshUnexportRun),
-		command.Flag("--env", envNameFlag()),
-		command.FlagMap(timeoutFlagMap()),
-		command.FlagMap(sqliteDSNFlagMap()),
-		command.NewFlag(
+		warg.CmdFlag("--env", envNameFlag()),
+		warg.CmdFlagMap(timeoutFlagMap()),
+		warg.CmdFlagMap(sqliteDSNFlagMap()),
+		warg.NewCmdFlag(
 			"--no-env-no-problem",
 			"Exit without an error if the environment doesn't exit. Useful when runnng envelop on chpwd",
 			scalar.Bool(
 				scalar.Default(false),
 			),
-			flag.Required(),
+			warg.Required(),
 		),
 	)
 }
 
-func shellZshUnexportRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
+func shellZshUnexportRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) error {
 	return shellZshExportUnexport(ctx, cmdCtx, es, "unexport")
 }
 
-func shellZshExportUnexport(ctx context.Context, cmdCtx wargcore.Context, es models.Service, scriptType string) error {
+func shellZshExportUnexport(ctx context.Context, cmdCtx warg.CmdContext, es models.Service, scriptType string) error {
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 	noEnvNoProblem := cmdCtx.Flags["--no-env-no-problem"].(bool)
 
@@ -193,15 +192,15 @@ func shellZshExportUnexport(ctx context.Context, cmdCtx wargcore.Context, es mod
 	return nil
 }
 
-func ShellZshChdirCmd() wargcore.Command {
-	return command.New(
+func ShellZshChdirCmd() warg.Cmd {
+	return warg.NewCmd(
 		"Change directory and corresponding env vars",
 		withSetup(shellZshChdirRun),
 		// TODO: maybe define the flags here to get better descriptions.
-		command.Flag("--old", envNameFlag()),
-		command.Flag("--new", envNameFlag()),
-		command.FlagMap(timeoutFlagMap()),
-		command.FlagMap(sqliteDSNFlagMap()),
+		warg.CmdFlag("--old", envNameFlag()),
+		warg.CmdFlag("--new", envNameFlag()),
+		warg.CmdFlagMap(timeoutFlagMap()),
+		warg.CmdFlagMap(sqliteDSNFlagMap()),
 	)
 }
 
@@ -216,7 +215,7 @@ func LookupMap(m map[string]string) LookupEnvFunc {
 	}
 }
 
-func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx wargcore.Context) error {
+func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) error {
 	oldEnvName := cmdCtx.Flags["--old"].(string)
 	newEnvName := cmdCtx.Flags["--new"].(string)
 

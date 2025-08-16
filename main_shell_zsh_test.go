@@ -7,8 +7,6 @@ import (
 
 	"go.bbkane.com/enventory/cli"
 	"go.bbkane.com/warg"
-	"go.bbkane.com/warg/parseopt"
-	"go.bbkane.com/warg/wargcore"
 )
 
 func TestShellZshExportNoEnvNoProblem(t *testing.T) {
@@ -180,9 +178,9 @@ func TestShellZshChdir(t *testing.T) {
 					UpdateGolden:    updateGolden,
 					ExpectActionErr: tt.expectActionErr,
 				},
-				parseopt.Args(tt.args),
-				parseopt.LookupEnv(wargcore.LookupMap(nil)),
-				parseopt.Context(ctx),
+				warg.ParseWithArgs(tt.args),
+				warg.ParseWithLookupEnv(warg.LookupMap(nil)),
+				warg.ParseWithContext(ctx),
 			)
 		})
 	}

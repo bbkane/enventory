@@ -5,68 +5,64 @@ import (
 
 	"go.bbkane.com/enventory/cli"
 	"go.bbkane.com/warg"
-	"go.bbkane.com/warg/help"
-	"go.bbkane.com/warg/section"
-	wargcli "go.bbkane.com/warg/wargcore"
 )
 
 var version string
 
-func buildApp() *wargcli.App {
+func buildApp() *warg.App {
 	app := warg.New(
 		"enventory",
 		version,
-		section.New(
+		warg.NewSection(
 			"Manage Environmental secrets centrally",
-			section.NewSection(
+			warg.NewSubSection(
 				"completion",
 				"Print completion scripts",
-				section.Command("zsh", cli.CompletionZshCmd()),
+				warg.SubCmd("zsh", cli.CompletionZshCmd()),
 			),
-			section.NewSection(
+			warg.NewSubSection(
 				"env",
 				"Environment commands",
-				section.Command("create", cli.EnvCreateCmd()),
-				section.Command("delete", cli.EnvDeleteCmd()),
-				section.Command("list", cli.EnvListCmd()),
-				section.Command("update", cli.EnvUpdateCmd()),
-				section.Command("show", cli.EnvShowCmd()),
+				warg.SubCmd("create", cli.EnvCreateCmd()),
+				warg.SubCmd("delete", cli.EnvDeleteCmd()),
+				warg.SubCmd("list", cli.EnvListCmd()),
+				warg.SubCmd("update", cli.EnvUpdateCmd()),
+				warg.SubCmd("show", cli.EnvShowCmd()),
 			),
-			section.NewSection(
+			warg.NewSubSection(
 				"shell",
 				"Manipulate the current shell",
-				section.NewSection(
+				warg.NewSubSection(
 					"zsh",
 					"Zsh-specific commands",
-					section.Command("chdir", cli.ShellZshChdirCmd()),
-					section.Command("init", cli.ShellZshInitCmd()),
-					section.Command("export", cli.ShellZshExportCmd()),
-					section.Command("unexport", cli.ShellZshUnexportCmd()),
+					warg.SubCmd("chdir", cli.ShellZshChdirCmd()),
+					warg.SubCmd("init", cli.ShellZshInitCmd()),
+					warg.SubCmd("export", cli.ShellZshExportCmd()),
+					warg.SubCmd("unexport", cli.ShellZshUnexportCmd()),
 				),
 			),
-			section.NewSection(
+			warg.NewSubSection(
 				"var",
 				"Env vars owned by this environment",
-				section.Command("create", cli.VarCreateCmd()),
-				section.Command("delete", cli.VarDeleteCmd()),
-				section.Command("show", cli.VarShowCmd()),
-				section.Command("update", cli.VarUpdateCmd()),
-				section.NewSection(
+				warg.SubCmd("create", cli.VarCreateCmd()),
+				warg.SubCmd("delete", cli.VarDeleteCmd()),
+				warg.SubCmd("show", cli.VarShowCmd()),
+				warg.SubCmd("update", cli.VarUpdateCmd()),
+				warg.NewSubSection(
 					"ref",
 					"Variable References owned by this environment",
-					section.Command("create", cli.VarRefCreateCmd()),
-					section.Command("delete", cli.VarRefDeleteCmd()),
-					section.Command("show", cli.VarRefShowCmd()),
-					section.Command("update", cli.VarRefUpdateCmd()),
+					warg.SubCmd("create", cli.VarRefCreateCmd()),
+					warg.SubCmd("delete", cli.VarRefDeleteCmd()),
+					warg.SubCmd("show", cli.VarRefShowCmd()),
+					warg.SubCmd("update", cli.VarRefUpdateCmd()),
 				),
 			),
 		),
-		// use "detailed" as the default choice
 		warg.HelpFlag(
-			help.DefaultHelpCommandMap(),
-			help.DefaultHelpFlagMap("detailed", help.DefaultHelpCommandMap().SortedNames()),
+			warg.DefaultHelpCmdMap(),
+			warg.DefaultHelpFlagMap("detailed", warg.DefaultHelpCmdMap().SortedNames()),
 		),
-		warg.SkipCompletionCommands(),
+		warg.SkipCompletionCmds(),
 	)
 	return &app
 }

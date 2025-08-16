@@ -8,9 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.bbkane.com/enventory/app"
 	"go.bbkane.com/enventory/models"
+	"go.bbkane.com/warg"
 	"go.bbkane.com/warg/completion"
-	"go.bbkane.com/warg/parseopt"
-	"go.bbkane.com/warg/wargcore"
 )
 
 // TestMainCompletions tests tab completions
@@ -153,8 +152,8 @@ func TestMainCompletions(t *testing.T) {
 			args = append(args, "")
 
 			actualCandidates, actualErr := app.Completions(
-				parseopt.Args(args),
-				parseopt.LookupEnv(wargcore.LookupMap(nil)),
+				warg.ParseWithArgs(args),
+				warg.ParseWithLookupEnv(warg.LookupMap(nil)),
 			)
 
 			if tt.expectedErr {
