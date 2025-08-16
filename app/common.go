@@ -23,7 +23,7 @@ func NewEnvService(ctx context.Context, dsn string) (models.Service, error) {
 	}, nil
 }
 
-func (e *EnvService) WithTx(ctx context.Context, fn func(ctx context.Context, es models.Service) error) error {
+func (e *EnvService) WithTx(ctx context.Context, txFunc func(ctx context.Context, es models.Service) error) error {
 	// TODO: make a WithReadOnlyTx too. Check error handling.
 	// I could use https://www.reddit.com/r/golang/comments/16xswxd/concurrency_when_writing_data_into_sqlite/
 	// but I really like just having a single file. I only expect one user at a time anyway.
@@ -39,19 +39,30 @@ func (e *EnvService) WithTx(ctx context.Context, fn func(ctx context.Context, es
 	if !ok {
 		panic("EnvService.dbtx is not a *sql.DB, cannot begin transaction. Maybe you tried to nest WithTx?")
 	}
+	// this is slightly copied from sqliteconnect.Connect
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("could not begin transaction: %w", err)
 	}
-	defer tx.Rollback() //nolint:errcheck
 
 	es := &EnvService{dbtx: models.NewTracedDBTX(models.Tracer, tx)}
-	if err := fn(ctx, es); err != nil {
-		return fmt.Errorf("error in transaction: %w", err)
+	err = txFunc(ctx, es)
+	if err != nil {
+		err = fmt.Errorf("error in transaction: %w", err)
+		goto rollback
 	}
 
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("could not commit transaction: %w", err)
+	err = tx.Commit()
+	if err != nil {
+		err = fmt.Errorf("could not commit transaction: %w", err)
+		goto rollback
 	}
 	return nil
+
+rollback:
+	rollbackErr := tx.Rollback()
+	if rollbackErr != nil {
+		return fmt.Errorf("could not rollback transaction: %w after previous err: %w", rollbackErr, err)
+	}
+	return fmt.Errorf("transaction rolled back after err: %w", err)
 }
