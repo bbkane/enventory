@@ -6,14 +6,16 @@ Store environment variables for projects in a central SQLite database!
 
 - Automatically export/unexport environments when entering/leaving directories
 - Need an environment variable in more than one environment? Create a reference to it instead of copying it.
-- Advanced tab completion! autocomplete commands, flags, env names, var/ref names!
+- Advanced tab completion! Autocomplete commands, flags, env names, var/ref names!
 - Currently only supports `zsh`
 
 ## Project Status
 
 I'm using `enventory` personally, and it seems to work well! That said, I work
 on `enventory` for fun, and part of that is changing APIs and CLI interfaces
-when I want to.
+when I want to. 
+
+And of course, I do my best to test changes to the codebase (I've actually got a pretty neat snapshot test system), and I've never lost data, but I'm only human, so back up sensitive API keys in a password safe like [KeePassXC](https://keepassxc.org/).
 
 ## Install
 
