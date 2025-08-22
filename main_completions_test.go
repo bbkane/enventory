@@ -40,9 +40,9 @@ func TestMainCompletions(t *testing.T) {
 	// create a var
 	_, err = es.VarCreate(ctx, models.VarCreateArgs{
 		EnvName:    envName01,
-		Name:       envVarName01,
-		Value:      envVarValue01,
-		Comment:    makeComment(envVarName01),
+		Name:       varName01,
+		Value:      varValue01,
+		Comment:    makeComment(varName01),
 		CreateTime: time.Time{},
 		UpdateTime: time.Time{},
 	})
@@ -51,12 +51,12 @@ func TestMainCompletions(t *testing.T) {
 	// create a  var ref
 	_, err = es.VarRefCreate(ctx, models.VarRefCreateArgs{
 		EnvName:    envName01,
-		Name:       envRefName01,
-		Comment:    makeComment(envRefName01),
+		Name:       varRefName01,
+		Comment:    makeComment(varRefName01),
 		CreateTime: time.Time{},
 		UpdateTime: time.Time{},
 		RefEnvName: envName01,
-		RefVarName: envVarName01,
+		RefVarName: varName01,
 	})
 	require.NoError(t, err)
 
@@ -91,15 +91,15 @@ func TestMainCompletions(t *testing.T) {
 				Type: completion.Type_ValuesDescriptions,
 				Values: []completion.Candidate{
 					{
-						Name:        envVarName01,
-						Description: makeComment(envVarName01),
+						Name:        varName01,
+						Description: makeComment(varName01),
 					},
 				},
 			},
 		},
 		{
 			name:        "envVarUpdateNewEnv",
-			args:        []string{"var", "update", "--db-path", dbName, "--env", envName01, "--name", envVarName01, "--new-env"},
+			args:        []string{"var", "update", "--db-path", dbName, "--env", envName01, "--name", varName01, "--new-env"},
 			expectedErr: false,
 			expectedCandidates: &completion.Candidates{
 				Type: completion.Type_ValuesDescriptions,
@@ -119,8 +119,8 @@ func TestMainCompletions(t *testing.T) {
 				Type: completion.Type_ValuesDescriptions,
 				Values: []completion.Candidate{
 					{
-						Name:        envRefName01,
-						Description: makeComment(envRefName01),
+						Name:        varRefName01,
+						Description: makeComment(varRefName01),
 					},
 				},
 			},
@@ -133,8 +133,8 @@ func TestMainCompletions(t *testing.T) {
 				Type: completion.Type_ValuesDescriptions,
 				Values: []completion.Candidate{
 					{
-						Name:        envVarName01,
-						Description: makeComment(envVarName01),
+						Name:        varName01,
+						Description: makeComment(varName01),
 					},
 				},
 			},

@@ -1,1 +1,1 @@
-Deleted envName01: envVarName01
+Deleted envName01: varName01

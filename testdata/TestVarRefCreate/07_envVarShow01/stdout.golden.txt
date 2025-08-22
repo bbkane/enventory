@@ -1,11 +1,11 @@
 ╭────────────┬────────────────╮
 │ EnvName    │ envName01      │
-│ Name       │ envVarName01   │
+│ Name       │ varName01      │
 │ Value      │ val01          │
 │ CreateTime │ Mon 0001-01-01 │
 ╰────────────┴────────────────╯
 EnvRefs
 ╭─────────┬──────────────╮
 │ EnvName │ envName02    │
-│ Name    │ envRefName01 │
+│ Name    │ varRefName01 │
 ╰─────────┴──────────────╯

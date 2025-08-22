@@ -4,14 +4,14 @@ Env
 │ CreateTime │ Mon 0001-01-01 │
 ╰────────────┴────────────────╯
 Vars
-╭───────┬──────────────╮
-│ Name  │ envVarName01 │
-│ Value │ value        │
-╰───────┴──────────────╯
+╭───────┬───────────╮
+│ Name  │ varName01 │
+│ Value │ value     │
+╰───────┴───────────╯
 Refs
 ╭─────────────┬──────────────╮
-│ Name        │ envRefName01 │
+│ Name        │ varRefName01 │
 │ RefEnvName  │ envName01    │
-│ RefVarName  │ envVarName01 │
+│ RefVarName  │ varName01    │
 │ RefVarValue │ value        │
 ╰─────────────┴──────────────╯

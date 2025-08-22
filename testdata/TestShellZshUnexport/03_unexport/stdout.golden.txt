@@ -1,4 +1,4 @@
 printf 'enventory:';
-printf ' -envVarName01';
-unset envVarName01;
+printf ' -varName01';
+unset varName01;
 echo;

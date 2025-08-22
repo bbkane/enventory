@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
+	"go.bbkane.com/enventory/app"
+	"go.bbkane.com/enventory/models"
 )
 
 func TestVarCreate(t *testing.T) {
@@ -19,13 +25,13 @@ func TestVarCreate(t *testing.T) {
 		},
 		{
 			name:            "02_varCreate",
-			args:            varCreateTestCmd(dbName, envName01, envVarName01, "value"),
+			args:            varCreateTestCmd(dbName, envName01, varName01, "value"),
 			expectActionErr: false,
 		},
 		{
 			name: "03_varShow",
 			args: new(testCmdBuilder).Strs("var", "show").
-				EnvName(envName01).Name(envVarName01).Tz().Mask(false).Finish(dbName),
+				EnvName(envName01).Name(varName01).Tz().Mask(false).Finish(dbName),
 			expectActionErr: false,
 		},
 		{
@@ -58,25 +64,25 @@ func TestVarDelete(t *testing.T) {
 		},
 		{
 			name:            "02_varCreate",
-			args:            varCreateTestCmd(dbName, envName01, envVarName01, "value"),
+			args:            varCreateTestCmd(dbName, envName01, varName01, "value"),
 			expectActionErr: false,
 		},
 		{
 			name: "03_varShow",
 			args: new(testCmdBuilder).Strs("var", "show").EnvName(envName01).
-				Name(envVarName01).Tz().Mask(false).Finish(dbName),
+				Name(varName01).Tz().Mask(false).Finish(dbName),
 			expectActionErr: false,
 		},
 		{
 			name: "04_varDelete",
 			args: new(testCmdBuilder).Strs("var", "delete").Confirm(false).
-				EnvName(envName01).Name(envVarName01).Finish(dbName),
+				EnvName(envName01).Name(varName01).Finish(dbName),
 			expectActionErr: false,
 		},
 		{
 			name: "05_varShow",
 			args: new(testCmdBuilder).Strs("var", "show").EnvName(envName01).
-				Name(envVarName01).Tz().Mask(false).Finish(dbName),
+				Name(varName01).Tz().Mask(false).Finish(dbName),
 			expectActionErr: true,
 		},
 	}
@@ -116,6 +122,87 @@ func TestVarDeleteNonexisting(t *testing.T) {
 	}
 }
 
+func TestEnvUniqueNames(t *testing.T) {
+	require := require.New(t)
+	t.Parallel()
+
+	dbName := createTempDB(t)
+
+	ctx := context.Background()
+	service, err := app.NewEnvService(ctx, dbName)
+	require.NoError(err)
+
+	// shortcuts!
+
+	createEnv := func(ctx context.Context, name string) error {
+		_, err := service.EnvCreate(ctx, models.EnvCreateArgs{Name: name, Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+		return err
+	}
+
+	createVar := func(ctx context.Context, envName, name string) error {
+		_, err := service.VarCreate(ctx, models.VarCreateArgs{EnvName: envName, Name: name, Value: "val", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+		return err
+	}
+	updateVar := func(ctx context.Context, envName, name, newName string) error {
+		err := service.VarUpdate(ctx, envName, name, models.VarUpdateArgs{Comment: nil, CreateTime: nil, EnvName: nil, Name: &newName, UpdateTime: nil, Value: nil})
+		return err
+	}
+
+	createRef := func(ctx context.Context, envName, name, refEnvName, refVarName string) error {
+		_, err := service.VarRefCreate(ctx, models.VarRefCreateArgs{EnvName: envName, Name: name, Comment: "", RefEnvName: refEnvName, RefVarName: refVarName, CreateTime: time.Time{}, UpdateTime: time.Time{}})
+		return err
+	}
+
+	updateRef := func(ctx context.Context, envName, name, newName string) error {
+		err := service.VarRefUpdate(ctx, envName, name, models.VarRefUpdateArgs{RefEnvName: nil, RefVarName: nil, Comment: nil, CreateTime: nil, EnvName: nil, Name: &newName, UpdateTime: nil})
+		return err
+	}
+
+	// Setup. Create env, vars, refs
+	err = createEnv(ctx, envName01)
+	require.NoError(err)
+
+	err = createVar(ctx, envName01, varName01)
+	require.NoError(err)
+	err = createVar(ctx, envName01, varName02)
+	require.NoError(err)
+
+	err = createRef(ctx, envName01, varRefName01, envName01, varName01)
+	require.NoError(err)
+	err = createRef(ctx, envName01, varRefName02, envName01, varName02)
+	require.NoError(err)
+
+	// Check for conflicts!
+
+	// var create
+	err = createVar(ctx, envName01, varName01)
+	require.Error(err)
+	err = createVar(ctx, envName01, varRefName01)
+	require.Error(err)
+
+	// var update
+	err = updateVar(ctx, envName01, varName01, varName01)
+	require.NoError(err) // update to be the same name should work
+	err = updateVar(ctx, envName01, varName01, varName02)
+	require.Error(err)
+	err = updateVar(ctx, envName01, varName01, varRefName01)
+	require.Error(err)
+
+	// ref create
+	err = createRef(ctx, envName01, varRefName01, envName01, varName01)
+	require.Error(err)
+	err = createRef(ctx, envName01, varName01, envName01, varRefName01)
+	require.Error(err)
+
+	// ref update
+	err = updateRef(ctx, envName01, varRefName01, varRefName01)
+	require.NoError(err) // update to be the same name should work
+	err = updateRef(ctx, envName01, varRefName01, varName01)
+	require.Error(err)
+	err = updateRef(ctx, envName01, varRefName01, varRefName02)
+	require.Error(err)
+}
+
 func TestEnvNonUniqueNames(t *testing.T) {
 	t.Parallel()
 	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
@@ -130,14 +217,14 @@ func TestEnvNonUniqueNames(t *testing.T) {
 		},
 		{
 			name:            "02_varCreate",
-			args:            varCreateTestCmd(dbName, envName01, envVarName01, "value"),
+			args:            varCreateTestCmd(dbName, envName01, varName01, "value"),
 			expectActionErr: false,
 		},
 		{
 			name: "03_varRefCreateSameName",
 			args: new(testCmdBuilder).Strs("var", "ref", "create").
-				EnvName(envName01).Name(envVarName01).Strs("--ref-env", envName01).
-				Strs("--ref-var", envVarName01).ZeroTimes().Finish(dbName),
+				EnvName(envName01).Name(varName01).Strs("--ref-env", envName01).
+				Strs("--ref-var", varName01).ZeroTimes().Finish(dbName),
 			expectActionErr: true,
 		},
 	}

@@ -17,9 +17,11 @@ const oneTime = "0001-01-01T01:00:00Z"
 
 const envName01 = "envName01"
 const envName02 = "envName02"
-const envVarName01 = "envVarName01"
-const envVarValue01 = "envVarValue01"
-const envRefName01 = "envRefName01"
+const varName01 = "varName01"
+const varName02 = "varName02"
+const varValue01 = "varValue01"
+const varRefName01 = "varRefName01"
+const varRefName02 = "varRefName02"
 
 func createTempDB(t *testing.T) string {
 	dbFile, err := os.CreateTemp(os.TempDir(), "enventory-test-")

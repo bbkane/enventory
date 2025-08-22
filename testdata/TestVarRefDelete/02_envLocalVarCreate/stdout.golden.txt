@@ -1,1 +1,1 @@
-Created env var: envName01: envVarName01
+Created env var: envName01: varName01

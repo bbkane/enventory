@@ -1,4 +1,4 @@
 printf 'enventory:';
-printf ' +envVarName01';
-export envVarName01=envVarValue01;
+printf ' +varName01';
+export varName01=varValue01;
 echo;

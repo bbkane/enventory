@@ -52,7 +52,7 @@ func TestShellZshExport(t *testing.T) {
 		},
 		{
 			name:            "02_varCreate",
-			args:            varCreateTestCmd(dbName, envName01, envVarName01, envVarValue01),
+			args:            varCreateTestCmd(dbName, envName01, varName01, varValue01),
 			expectActionErr: false,
 		},
 		{
@@ -84,7 +84,7 @@ func TestShellZshUnexport(t *testing.T) {
 		},
 		{
 			name:            "02_varCreate",
-			args:            varCreateTestCmd(dbName, envName01, envVarName01, envVarValue01),
+			args:            varCreateTestCmd(dbName, envName01, varName01, varValue01),
 			expectActionErr: false,
 		},
 		{
