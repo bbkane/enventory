@@ -54,6 +54,16 @@ automatically.
 enventory completion zsh > /something/in/$fpath
 ```
 
+# Alternatives
+
+Turns out there are a lot of options in this space! Here are some of my  favorites:
+
+- [`direnv`](https://direnv.net/) - uses `.envrc` files in directories to export variables
+- [`dotenv`](https://www.dotenv.org/) - a family of tools to store env vars in config files in directories. Optional encryption
+- [`envchain`](https://github.com/sorah/envchain) - Save environment variables in the OS keychain
+- [`envelope`](https://github.com/mattrighetti/envelope) - another approach to using SQLite to store environment variables. Side note: I had originally named `enventory` `envelope`. I changed the name once I noticed this project.
+- [`mise`](https://mise.jdx.dev/) - manages tool versions, environments, and tasks through config files in directories
+
 # Dev Notes
 
 See [Go Project Notes](https://www.bbkane.com/blog/go-project-notes/) for notes
