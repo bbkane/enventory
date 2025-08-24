@@ -5,19 +5,23 @@
 Store environment variables for projects in a central SQLite database!
 
 - Automatically export/unexport environments when entering/leaving directories
-- Need an environment variable in more than one environment? Create a reference to it instead of copying it.
+- Share variables between environments with variable references
 - Advanced tab completion! Autocomplete commands, flags, env names, var/ref names!
 - Currently only supports `zsh`
 
-## Project Status
+# Project Status
 
-I'm using `enventory` personally, and it seems to work well! That said, I work
-on `enventory` for fun, and part of that is changing APIs and CLI interfaces
-when I want to. 
+I'm using `enventory` personally and I quite enjoy using it! That said, I work
+on `enventory` for fun/learning, which means changing API and CLI structure as
+I feel like it (I feel pretty good about the current structure though).
 
-And of course, I do my best to test changes to the codebase (I've actually got a pretty neat snapshot test system), and I've never lost data, but I'm only human, so back up sensitive API keys in a password safe like [KeePassXC](https://keepassxc.org/).
+I do my best to test changes to the codebase (I've actually got a pretty neat
+snapshot test system), and I've never lost data, but I'm only human, so back up
+sensitive API keys in a password safe (I really like
+[KeePassXC](https://keepassxc.org/)) instead of storing them soley in
+`envetory`
 
-## Install
+# Install
 
 - [Homebrew](https://brew.sh/): `brew install bbkane/tap/enventory`
 - [Scoop](https://scoop.sh/):
@@ -33,7 +37,7 @@ scoop install bbkane/enventory
 
 ## Initialize in `~/.zshrc`
 
-> Other shells not yet supported
+> `zsh` is currently the only shell supported
 
 ```bash
 eval "$(enventory shell zsh init)"
@@ -41,17 +45,21 @@ eval "$(enventory shell zsh init)"
 
 ## Initialize `zsh` Tab Completion
 
-`enventory` is quite a verbose CLI, so tab completion (which also auto-completes env names, var names, and var ref names) is super useful.
+`enventory` is quite a verbose CLI, so tab completion (which also
+auto-completes env names, var names, and var ref names) is super useful (to the
+point where I wouldn't want to use `enventory` without it). Homebrew does this
+automatically.
 
 ```bash
 enventory completion zsh > /something/in/$fpath
 ```
 
-## Dev Notes
+# Dev Notes
 
-See [Go Project Notes](https://www.bbkane.com/blog/go-project-notes/) for notes on development tooling and CI/CD setup (including demo gif generation)
+See [Go Project Notes](https://www.bbkane.com/blog/go-project-notes/) for notes
+on development tooling and CI/CD setup (including demo gif generation)
 
-### Generate [`./dbdoc`](./dbdoc) with [tbls](https://github.com/k1LoW/tbls)
+## Generate [`./dbdoc`](./dbdoc) with [tbls](https://github.com/k1LoW/tbls)
 
 Install:
 
@@ -67,13 +75,13 @@ go run . env list --db-path tmp.db
 tbls doc --rm-dist
 ```
 
-### Generate [./sqlite/sqlite/sqlcgen](./sqlite/sqlite/sqlcgen)
+## Generate [./sqlite/sqlite/sqlcgen](./sqlite/sqlite/sqlcgen)
 
 ```bash
 go generate ./...
 ```
 
-### Export OTEL traces!
+## Export OTEL traces!
 
 Debug `enventory` with OTEL tracing:
 
@@ -83,6 +91,6 @@ MOTEL_TRACES_EXPORTER=stdout go run . env show
 
 See the [motel repo](https://github.com/bbkane/motel) for other ways to visualize OTEL traces
 
-### Manually test custom completions
+## Manually test custom completions
 
 See [`warg`s instructions](https://github.com/bbkane/warg/tree/master/completion)
