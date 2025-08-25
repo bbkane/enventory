@@ -2,7 +2,7 @@
 
 ![./demo.gif](./demo.gif)
 
-Store environment variables for projects in a central SQLite database!
+Centrally manage environment variables with SQLite
 
 - Automatically export/unexport environments when entering/leaving directories
 - Keep a global view of which variables apply to which projects (with metedata: date created/updated, optional comments). 
