@@ -5,9 +5,15 @@
 Store environment variables for projects in a central SQLite database!
 
 - Automatically export/unexport environments when entering/leaving directories
-- Keep a global view of which variables apply to which projects (and never commit a .env file again)
+- Keep a global view of which variables apply to which projects (with metedata: date created/updated, optional comments). 
+- Filter environments to keep your view manageable:
+
+```bash
+enventory env list --expr 'filter(Envs, hasPrefix(.Name, "test") and .UpdateTime > now() - duration("90d"))'
+```
+
 - Share variables between environments with variable references
-- Advanced tab completion! Autocomplete commands, flags, env names, var/ref names!
+- Advanced tab completion! Autocomplete commands, flags, env names, var/ref names
 - Currently only supports `zsh`
 
 # Project Status
@@ -42,6 +48,12 @@ scoop install bbkane/enventory
 
 ```bash
 eval "$(enventory shell zsh init)"
+```
+
+This also provides functions `export-env` and `unexport-env` to easily export environments into the current shell session:
+
+```bash
+export-env my-environment
 ```
 
 ## Initialize `zsh` Tab Completion
