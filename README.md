@@ -5,7 +5,7 @@
 Store environment variables for projects in a central SQLite database!
 
 - Automatically export/unexport environments when entering/leaving directories
-- Keep a global view of which variables apply to which projects
+- Keep a global view of which variables apply to which projects (and never commit a .env file again)
 - Share variables between environments with variable references
 - Advanced tab completion! Autocomplete commands, flags, env names, var/ref names!
 - Currently only supports `zsh`
