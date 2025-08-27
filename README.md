@@ -5,7 +5,7 @@
 Centrally manage environment variables with SQLite
 
 - Automatically export/unexport environments when entering/leaving directories
-- Keep a global view of which variables apply to which projects (with metedata: date created/updated, optional comments). 
+- Keep a global view of which variables apply to which projects (as well as date created/updated, optional comments). 
 - Filter environments to keep your view manageable:
 
 ```bash
