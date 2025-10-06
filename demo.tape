@@ -18,7 +18,7 @@ Hide
 Type 'setopt interactive_comments'
 Enter
 
-Type 'source ~/Git-GH/F-Sy-H/F-Sy-H.plugin.zsh'
+Type 'source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh'
 Enter
 
 Type 'enventory env create --name shared-env'
