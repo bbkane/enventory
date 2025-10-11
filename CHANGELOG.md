@@ -10,6 +10,7 @@ Note the the latest version is usually work in progress and may have not yet bee
 ## Changed
 
 - Emit root spans with the command path as the name
+- Emit "<redacted>" insead of nothing for potentially sensitive arguments
 
 # v0.0.23
 
