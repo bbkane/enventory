@@ -207,7 +207,7 @@ func (t *TracedService) VarCreate(ctx context.Context, args VarCreateArgs) (*Var
 		trace.WithAttributes(
 			attribute.String("args.EnvName", args.EnvName),
 			attribute.String("args.Name", args.Name),
-			// attribute.String("args.Value", args.Value), // can be sensitive
+			attribute.String("args.Value", "<redacted>"), // can be sensitive
 			attribute.String("args.Comment", args.Comment),
 			attribute.String("args.CreateTime", TimeToString(args.CreateTime)),
 			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
@@ -262,6 +262,10 @@ func (t *TracedService) VarList(ctx context.Context, envName string) ([]Var, err
 }
 
 func (t *TracedService) VarUpdate(ctx context.Context, envName string, name string, args VarUpdateArgs) error {
+	argsValue := "<nil>"
+	if args.Value != nil {
+		argsValue = "<redacted>" // can be sensitive
+	}
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarUpdate",
@@ -269,7 +273,7 @@ func (t *TracedService) VarUpdate(ctx context.Context, envName string, name stri
 			attribute.String("envName", envName),
 			attribute.String("name", name),
 			attribute.String("args.Name", ptrToString(args.Name)),
-			// attribute.String("args.Value", ptrToString(args.Value)),  // can be sensitive
+			attribute.String("args.Value", argsValue), // can be sensitive
 			attribute.String("args.Comment", ptrToString(args.Comment)),
 			attribute.String("args.CreateTime", ptrToString(TimePtrToStringPtr(args.CreateTime))),
 			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
