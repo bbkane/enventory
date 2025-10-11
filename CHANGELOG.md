@@ -5,6 +5,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Note the the latest version is usually work in progress and may have not yet been released.
 
+# v0.0.24
+
+## Changed
+
+- Emit root spans with the command path as the name
+
 # v0.0.23
 
 ## Added

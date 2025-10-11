@@ -473,6 +473,14 @@ func withSetup(
 			}
 		}()
 
+		nameParts := make([]string, len(cmdCtx.ParseState.SectionPath)+1)
+		copy(nameParts, cmdCtx.ParseState.SectionPath)
+		nameParts[len(nameParts)-1] = cmdCtx.ParseState.CurrentCmdName
+
+		rootSpanName := strings.Join(nameParts, " ")
+		ctx, rootSpan := tracer.Start(ctx, rootSpanName)
+		defer rootSpan.End()
+
 		ctx, span := tracer.Start(ctx, "withSetup")
 		defer span.End()
 
