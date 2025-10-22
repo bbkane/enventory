@@ -57,6 +57,7 @@ func buildApp() *warg.App {
 					warg.SubCmd("update", cli.VarRefUpdateCmd()),
 				),
 			),
+			warg.SubCmd("exec", cli.ExecCmd()),
 		),
 		warg.HelpFlag(
 			warg.DefaultHelpCmdMap(),

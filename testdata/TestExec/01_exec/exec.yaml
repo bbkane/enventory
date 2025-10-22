@@ -1,0 +1,21 @@
+groups:
+  - description: Default group
+    name: mygroup
+    vars:
+      GROUP_VAR1: GROUP_VAR1_value
+      GROUP_VAR2: GROUP_VAR2_value
+vars:
+  - completions:
+      - values_01
+      - values_02
+    completions_type: value
+    help: help for VAR_WITH_VALUES_COMPLETIONS
+    name: VAR_WITH_VALUES_COMPLETIONS
+  - completions:
+      - help: help value '1' for VAR_WITH_VALUES_DESCRIPTIONS_COMPLETIONS
+        value: '1'
+      - help: help value '2' for VAR_WITH_VALUES_DESCRIPTIONS_COMPLETIONS
+        value: '2'
+    completions_type: value_help
+    help: help for VAR_WITH_VALUES_DESCRIPTIONS_COMPLETIONS
+    name: VAR_WITH_VALUES_DESCRIPTIONS_COMPLETIONS

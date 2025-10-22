@@ -7,6 +7,10 @@ Note the the latest version is usually work in progress and may have not yet bee
 
 # v0.0.24
 
+## Added
+
+- Add `enventory exec` command to shell out to other commands after exporting envs
+
 ## Changed
 
 - Emit root spans with the command path as the name
