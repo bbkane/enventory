@@ -129,7 +129,7 @@ func yamlToFlags(path string) (*yamlToFlagsResult, error) {
 	}, nil
 }
 
-const helpExec = `Exec a command with environment variable set from an existing env or flags from a YAML file
+const helpLongExec = `Exec a command with environment variable set from an existing env or flags from a YAML file
 
 Example YAML file:
 
@@ -150,7 +150,7 @@ Example YAML file:
       - 'otel-collector:4317'
     - name: COUNT
       help: 'Number of times to greet'
-      completions_type: value_description
+      completions_type: value_help
       completions:
       - value: '1'
         help: 'Greet once'
@@ -189,7 +189,7 @@ func ExecCmd() warg.Cmd {
 	}
 
 	return warg.NewCmd(
-		helpExec,
+		"Exec a command with environment variable set from an existing env or flags from a YAML file",
 		withSetup(execRun),
 		warg.AllowForwardedArgs(),
 		warg.CmdFlag(
@@ -214,6 +214,7 @@ func ExecCmd() warg.Cmd {
 		warg.CmdFlagMap(sqliteDSNFlagMap()),
 		warg.CmdFlagMap(flagMap),
 		warg.CmdFlagMap(groupFlagMap),
+		warg.CmdHelpLong(helpLongExec),
 	)
 }
 
