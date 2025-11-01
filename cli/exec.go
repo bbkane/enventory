@@ -6,10 +6,13 @@ import (
 	"os"
 	"os/exec"
 
+	"al.essio.dev/pkg/shellescape"
 	"go.bbkane.com/enventory/models"
 	"go.bbkane.com/warg"
 	"go.bbkane.com/warg/completion"
 	"go.bbkane.com/warg/path"
+	"go.bbkane.com/warg/set"
+
 	"go.bbkane.com/warg/value/scalar"
 	"go.bbkane.com/warg/value/slice"
 	"gopkg.in/yaml.v3"
@@ -110,9 +113,14 @@ func yamlToFlags(path string) (*yamlToFlagsResult, error) {
 
 	var groupFlagMap warg.FlagMap
 	if len(config.Groups) > 0 {
-		groups := []string{}
+		groups := make([]string, 0, len(config.Groups))
+		completions := make([]completion.Candidate, 0, len(config.Groups))
 		for _, group := range config.Groups {
 			groups = append(groups, group.Name)
+			completions = append(completions, completion.Candidate{
+				Name:        group.Name,
+				Description: group.Description,
+			})
 		}
 		groupFlagMap = warg.FlagMap{
 			"--group": warg.NewFlag(
@@ -120,6 +128,7 @@ func yamlToFlags(path string) (*yamlToFlagsResult, error) {
 				slice.String(
 					slice.Choices(groups...),
 				),
+				warg.FlagCompletions(warg.CompletionsValuesDescriptions(completions)),
 			),
 		}
 	}
@@ -129,7 +138,7 @@ func yamlToFlags(path string) (*yamlToFlagsResult, error) {
 	}, nil
 }
 
-const helpExec = `Exec a command with environment variable set from an existing env or flags from a YAML file
+const helpLongExec = `Exec a command with environment variable set from an existing env or flags from a YAML file
 
 Example YAML file:
 
@@ -150,7 +159,7 @@ Example YAML file:
       - 'otel-collector:4317'
     - name: COUNT
       help: 'Number of times to greet'
-      completions_type: value_description
+      completions_type: value_help
       completions:
       - value: '1'
         help: 'Greet once'
@@ -177,6 +186,7 @@ func ExecCmd() warg.Cmd {
 	flagMap := make(warg.FlagMap)
 	groupFlagMap := make(warg.FlagMap)
 
+	// TODO: allow specifying multiple YAML files?
 	configPath := os.Getenv("ENVENTORY_EXEC_CONFIG")
 	if configPath != "" {
 		configPath = path.New(configPath).MustExpand()
@@ -189,7 +199,7 @@ func ExecCmd() warg.Cmd {
 	}
 
 	return warg.NewCmd(
-		helpExec,
+		"Exec a command with environment variable set from an existing env or flags from a YAML file",
 		withSetup(execRun),
 		warg.AllowForwardedArgs(),
 		warg.CmdFlag(
@@ -210,14 +220,26 @@ func ExecCmd() warg.Cmd {
 				warg.Required(),
 			),
 		),
+		warg.CmdFlag("--print-vars",
+			warg.NewFlag(
+				"Print the environment variables that would be set before executing the command",
+				scalar.Bool(
+					scalar.Default(false),
+				),
+				warg.Required(),
+			),
+		),
 		warg.CmdFlagMap(timeoutFlagMap()),
 		warg.CmdFlagMap(sqliteDSNFlagMap()),
 		warg.CmdFlagMap(flagMap),
 		warg.CmdFlagMap(groupFlagMap),
+		warg.CmdHelpLong(helpLongExec),
 	)
 }
 
 func execRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) error {
+
+	vars := []kv{}
 
 	if !cmdCtx.Flags["--inherit-env"].(bool) {
 		os.Clearenv()
@@ -249,7 +271,10 @@ func execRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) err
 			return fmt.Errorf("could not list env vars: %s: %w", envName, err)
 		}
 		for _, ev := range envVars {
-			os.Setenv(ev.Name, ev.Value)
+			vars = append(vars, kv{
+				Name:  ev.Name,
+				Value: ev.Value,
+			})
 		}
 
 		envRefs, envRefVars, err := es.VarRefList(ctx, envName)
@@ -257,7 +282,10 @@ func execRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) err
 			return fmt.Errorf("could not list env refs: %s: %w", envName, err)
 		}
 		for i := range envRefs {
-			os.Setenv(envRefs[i].Name, envRefVars[i].Value)
+			vars = append(vars, kv{
+				Name:  envRefs[i].Name,
+				Value: envRefVars[i].Value,
+			})
 		}
 	}
 
@@ -284,7 +312,10 @@ func execRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) err
 			for _, group := range config.Groups {
 				if group.Name == groupName {
 					for varName, varValue := range group.Vars {
-						os.Setenv(varName, varValue)
+						vars = append(vars, kv{
+							Name:  varName,
+							Value: varValue,
+						})
 					}
 				}
 			}
@@ -292,20 +323,38 @@ func execRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) err
 	}
 
 	// set custom flags as env vars
-	cmdFlagNames := warg.NewSet[string]()
-	cmdFlagNames.Add("--color")
-	cmdFlagNames.Add("--db-path")
-	cmdFlagNames.Add("--env")
-	cmdFlagNames.Add("--group")
-	cmdFlagNames.Add("--help")
-	cmdFlagNames.Add("--inherit-env")
-	cmdFlagNames.Add("--timeout")
+	cmdFlagNames := set.New[string]()
+	cmdFlagNames.AddAll(
+		"--color",
+		"--db-path",
+		"--env",
+		"--group",
+		"--help",
+		"--inherit-env",
+		"--print-vars",
+		"--timeout",
+	)
 
 	for flagName, flagValue := range cmdCtx.Flags {
 		if cmdFlagNames.Contains(flagName) {
 			continue
 		}
-		os.Setenv(flagName[2:], flagValue.(string))
+		vars = append(vars, kv{
+			Name:  flagName[2:],
+			Value: flagValue.(string),
+		})
+	}
+
+	if cmdCtx.Flags["--print-vars"].(bool) {
+		for _, v := range vars {
+			fmt.Printf("%s=%s\n", v.Name, shellescape.Quote(v.Value))
+		}
+		fmt.Println("---")
+	}
+
+	// set env vars in os.Environ
+	for _, v := range vars {
+		os.Setenv(v.Name, v.Value)
 	}
 
 	cmd := exec.Command(command, args...)

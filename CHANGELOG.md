@@ -9,7 +9,8 @@ Note the the latest version is usually work in progress and may have not yet bee
 
 ## Added
 
-- Add `enventory exec` command to shell out to other commands after exporting envs
+- Add `enventory exec` command to shell out to other commands after exporting envs. Configurable with a YAML file. See `enventory exec --help`
+- Add `enventory repl` command for folks who don't want to set up zsh tab completion
 
 ## Changed
 
