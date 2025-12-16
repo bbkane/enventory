@@ -277,6 +277,14 @@ func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCon
 	fmt.Fprintf(cmdCtx.Stdout, "printf '%s:';\n", cmdCtx.App.Name)
 
 	// print the change script
+	for _, kv := range todo.ToAdd {
+		fmt.Fprintf(cmdCtx.Stdout, "printf ' +%s';\n", shellescape.Quote(kv.Name))
+		fmt.Fprintf(cmdCtx.Stdout, "export %s=%s;\n", shellescape.Quote(kv.Name), shellescape.Quote(kv.Value))
+	}
+	for _, kv := range todo.ToChange {
+		fmt.Fprintf(cmdCtx.Stdout, "printf ' ~%s';\n", shellescape.Quote(kv.Name))
+		fmt.Fprintf(cmdCtx.Stdout, "export %s=%s;\n", shellescape.Quote(kv.Name), shellescape.Quote(kv.Value))
+	}
 	for _, kv := range todo.ToRemove {
 		fmt.Fprintf(cmdCtx.Stdout, "printf ' -%s';\n", shellescape.Quote(kv.Name))
 		fmt.Fprintf(cmdCtx.Stdout, "unset %s;\n", shellescape.Quote(kv.Name))
@@ -284,14 +292,7 @@ func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCon
 	for _, kv := range todo.Unchanged {
 		fmt.Fprintf(cmdCtx.Stdout, "printf ' =%s';\n", shellescape.Quote(kv.Name))
 	}
-	for _, kv := range todo.ToChange {
-		fmt.Fprintf(cmdCtx.Stdout, "printf ' ~%s';\n", shellescape.Quote(kv.Name))
-		fmt.Fprintf(cmdCtx.Stdout, "export %s=%s;\n", shellescape.Quote(kv.Name), shellescape.Quote(kv.Value))
-	}
-	for _, kv := range todo.ToAdd {
-		fmt.Fprintf(cmdCtx.Stdout, "printf ' +%s';\n", shellescape.Quote(kv.Name))
-		fmt.Fprintf(cmdCtx.Stdout, "export %s=%s;\n", shellescape.Quote(kv.Name), shellescape.Quote(kv.Value))
-	}
+
 	fmt.Fprint(cmdCtx.Stdout, "echo;\n")
 	return nil
 }

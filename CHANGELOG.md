@@ -5,6 +5,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Note the the latest version is usually work in progress and may have not yet been released.
 
+# v0.0.25
+
+## Changed
+
+- in `shell zsh chdir`, change the order from (Removed, Unchanged, Changed, Added) to (Added, Changed, Removed, Unchanged). This prints the "most impactful" changes first for easier inspection.
+
 # v0.0.24
 
 ## Added
