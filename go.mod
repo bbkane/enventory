@@ -9,7 +9,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	go.bbkane.com/motel v0.0.2
-	go.bbkane.com/warg v0.0.38
+	go.bbkane.com/warg v0.0.39
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
 	golang.org/x/term v0.39.0
