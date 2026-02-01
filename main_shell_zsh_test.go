@@ -1,12 +1,12 @@
 package main
 
 import (
-	"context"
 	"os"
 	"testing"
 
 	"go.bbkane.com/enventory/cli"
 	"go.bbkane.com/warg"
+	"go.bbkane.com/warg/metadata"
 )
 
 func TestShellZshExportNoEnvNoProblem(t *testing.T) {
@@ -162,8 +162,7 @@ func TestShellZshChdir(t *testing.T) {
 		},
 	}
 
-	// put the old env into the "environment"
-	ctx := context.WithValue(context.Background(), cli.CustomLookupEnvFuncKey{}, cli.LookupMap(map[string]string{
+	md := metadata.New(cli.CustomLookupEnvFuncKey{}, cli.LookupMap(map[string]string{
 		"ov1": "ov1val",
 		"or1": "ov1val",
 		"nr1": "nv1val",
@@ -180,7 +179,7 @@ func TestShellZshChdir(t *testing.T) {
 				},
 				warg.ParseWithArgs(tt.args),
 				warg.ParseWithLookupEnv(warg.LookupMap(nil)),
-				warg.ParseWithContext(ctx),
+				warg.ParseWithMetadata(md),
 			)
 		})
 	}

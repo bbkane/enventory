@@ -220,7 +220,7 @@ func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCon
 	newEnvName := cmdCtx.Flags["--new"].(string)
 
 	lookupEnv := os.LookupEnv
-	if custom := cmdCtx.Context.Value(CustomLookupEnvFuncKey{}); custom != nil {
+	if custom, exists := cmdCtx.ParseMetadata.Get(CustomLookupEnvFuncKey{}); exists {
 		lookupEnv = custom.(LookupEnvFunc)
 	}
 
