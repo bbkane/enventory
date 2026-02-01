@@ -110,6 +110,14 @@ type VarRefUpdateArgs struct {
 	Enabled    *bool
 }
 
+// -- EnvExportable
+
+type EnvExportable struct {
+	Name    string
+	Enabled bool
+	Value   string
+}
+
 // -- interface
 
 type DBTX interface {
@@ -125,6 +133,8 @@ type Service interface {
 	EnvList(ctx context.Context, args EnvListArgs) ([]Env, error)
 	EnvUpdate(ctx context.Context, name string, args EnvUpdateArgs) error
 	EnvShow(ctx context.Context, name string) (*Env, error)
+
+	EnvExportableList(ctx context.Context, envName string) ([]EnvExportable, error)
 
 	// TODO: should envName be its own parameter?
 	VarCreate(ctx context.Context, args VarCreateArgs) (*Var, error)

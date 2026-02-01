@@ -498,6 +498,63 @@
         "var",
         "var_ref"
       ]
+    },
+    {
+      "name": "vw_env_exportable",
+      "type": "view",
+      "columns": [
+        {
+          "name": "env_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "env_name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "type",
+          "type": "",
+          "nullable": true
+        },
+        {
+          "name": "comment",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "value",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "create_time",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "update_time",
+          "type": "TEXT",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW vw_env_exportable AS\nSELECT\n    v.env_id,\n    (SELECT name FROM env WHERE env_id = v.env_id) AS env_name,\n    v.name,\n    'var' AS type,\n    v.comment,\n    v.enabled,\n    v.value,\n    v.create_time,\n    v.update_time\nFROM var v\n\nUNION ALL\n\nSELECT\n    vr.env_id,\n    (SELECT name FROM env WHERE env_id = vr.env_id) AS env_name,\n    vr.name,\n    'var_ref' AS type,\n    vr.comment,\n    vr.enabled,\n    (SELECT value FROM var WHERE var_id = vr.var_id) AS value,\n    vr.create_time,\n    vr.update_time\nFROM var_ref vr",
+      "referenced_tables": [
+        "env",
+        "var",
+        "var_ref"
+      ]
     }
   ],
   "relations": [

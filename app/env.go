@@ -196,3 +196,27 @@ func (e *EnvService) EnvShow(ctx context.Context, name string) (*models.Env, err
 		Enabled:    models.Int64ToBool(sqlcEnv.Enabled),
 	}, nil
 }
+
+func (e *EnvService) EnvExportableList(ctx context.Context, envName string) ([]models.EnvExportable, error) {
+	envID, err := e.envFindID(ctx, envName)
+	if err != nil {
+		return nil, err
+	}
+
+	queries := sqlcgen.New(e.dbtx)
+	rows, err := queries.EnvExportableList(ctx, envID)
+	if err != nil {
+		return nil, fmt.Errorf("could not list exportable items: %w", err)
+	}
+
+	ret := make([]models.EnvExportable, 0, len(rows))
+	for _, row := range rows {
+		ret = append(ret, models.EnvExportable{
+			Name:    row.Name,
+			Enabled: models.Int64ToBool(row.Enabled),
+			Value:   row.Value,
+		})
+	}
+
+	return ret, nil
+}

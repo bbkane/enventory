@@ -163,6 +163,21 @@ func (t *TracedService) EnvList(ctx context.Context, args EnvListArgs) ([]Env, e
 	return envs, err
 }
 
+func (t *TracedService) EnvExportableList(ctx context.Context, envName string) ([]EnvExportable, error) {
+	ctx, span := t.tracer.Start(ctx, "EnvListExportable", trace.WithAttributes(
+		attribute.String("envName", envName),
+	))
+	defer span.End()
+
+	items, err := t.Service.EnvExportableList(ctx, envName)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	}
+
+	return items, err
+}
+
 func (t *TracedService) EnvUpdate(ctx context.Context, name string, args EnvUpdateArgs) error {
 	ctx, span := t.tracer.Start(
 		ctx,

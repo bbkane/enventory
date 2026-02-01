@@ -35,6 +35,18 @@ type VarRef struct {
 	Enabled    int64
 }
 
+type VwEnvExportable struct {
+	EnvID      int64
+	EnvName    string
+	Name       string
+	Type       string
+	Comment    string
+	Enabled    int64
+	Value      string
+	CreateTime string
+	UpdateTime string
+}
+
 type VwEnvVarVarRefUniqueName struct {
 	EnvID int64
 	Name  string

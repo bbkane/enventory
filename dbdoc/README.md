@@ -11,6 +11,7 @@
 | [vw_env_var_var_ref_unique_name](vw_env_var_var_ref_unique_name.md) | 2 |  | view |
 | [vw_var_expanded](vw_var_expanded.md) | 8 |  | view |
 | [vw_var_ref_expanded](vw_var_ref_expanded.md) | 10 |  | view |
+| [vw_env_exportable](vw_env_exportable.md) | 9 |  | view |
 
 ## Relations
 
