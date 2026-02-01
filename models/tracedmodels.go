@@ -121,6 +121,7 @@ func (t *TracedService) EnvCreate(ctx context.Context, args EnvCreateArgs) (*Env
 			attribute.String("args.Comment", args.Comment),
 			attribute.String("args.CreateTime", TimeToString(args.CreateTime)),
 			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
+			attribute.Bool("args.Enabled", args.Enabled),
 		),
 	)
 	defer span.End()
@@ -172,6 +173,7 @@ func (t *TracedService) EnvUpdate(ctx context.Context, name string, args EnvUpda
 			attribute.String("args.Comment", ptrToString(args.Comment)),
 			attribute.String("args.CreateTime", ptrToString(TimePtrToStringPtr(args.CreateTime))),
 			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
+			attribute.String("args.Enabled", ptrToString(args.Enabled)),
 		),
 	)
 	defer span.End()
@@ -211,6 +213,7 @@ func (t *TracedService) VarCreate(ctx context.Context, args VarCreateArgs) (*Var
 			attribute.String("args.Comment", args.Comment),
 			attribute.String("args.CreateTime", TimeToString(args.CreateTime)),
 			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
+			attribute.Bool("args.Enabled", args.Enabled),
 		),
 	)
 	defer span.End()
@@ -277,6 +280,7 @@ func (t *TracedService) VarUpdate(ctx context.Context, envName string, name stri
 			attribute.String("args.Comment", ptrToString(args.Comment)),
 			attribute.String("args.CreateTime", ptrToString(TimePtrToStringPtr(args.CreateTime))),
 			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
+			attribute.String("args.Enabled", ptrToString(args.Enabled)),
 		),
 	)
 	defer span.End()
@@ -324,6 +328,7 @@ func (t *TracedService) VarRefCreate(ctx context.Context, args VarRefCreateArgs)
 			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
 			attribute.String("args.RefEnvName", args.RefEnvName),
 			attribute.String("args.RefVarName", args.RefVarName),
+			attribute.Bool("args.Enabled", args.Enabled),
 		),
 	)
 	defer span.End()
@@ -407,6 +412,7 @@ func (t *TracedService) VarRefUpdate(ctx context.Context, envName string, name s
 			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
 			attribute.String("args.RefEnvName", ptrToString(args.RefEnvName)),
 			attribute.String("args.RefVarName", ptrToString(args.RefVarName)),
+			attribute.String("args.Enabled", ptrToString(args.Enabled)),
 		),
 	)
 	defer span.End()

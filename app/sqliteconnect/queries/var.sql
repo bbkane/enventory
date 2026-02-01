@@ -1,8 +1,8 @@
 -- name: VarCreate :exec
 INSERT INTO var(
-    env_id, name, comment, create_time, update_time, value
+    env_id, name, comment, create_time, update_time, value, enabled
 ) VALUES (
-    ?     , ?   , ?      , ?          , ?          , ?
+    ?     , ?   , ?      , ?          , ?          , ?    , ?
 );
 
 -- name: VarDelete :execrows
@@ -34,5 +34,6 @@ UPDATE var SET
     comment = COALESCE(sqlc.narg('comment'), comment),
     create_time = COALESCE(sqlc.narg('create_time'), create_time),
     update_time = COALESCE(sqlc.narg('update_time'), update_time),
-    value = COALESCE(sqlc.narg('value'), value)
+    value = COALESCE(sqlc.narg('value'), value),
+    enabled = COALESCE(sqlc.narg('enabled'), enabled)
 WHERE var_id = sqlc.arg('var_id');

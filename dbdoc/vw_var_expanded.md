@@ -38,8 +38,8 @@ FROM var
 
 | Name | Columns | Comment | Type |
 | ---- | ------- | ------- | ---- |
-| [env](env.md) | 5 |  | table |
-| [var](var.md) | 7 |  | table |
+| [env](env.md) | 6 |  | table |
+| [var](var.md) | 8 |  | table |
 
 ## Relations
 

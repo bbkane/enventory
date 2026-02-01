@@ -66,6 +66,7 @@ func varCreateRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext
 				CreateTime: commonCreateArgs.CreateTime,
 				UpdateTime: commonCreateArgs.UpdateTime,
 				Value:      value,
+				Enabled:    commonCreateArgs.Enabled,
 			},
 		)
 		if err != nil {
@@ -209,6 +210,7 @@ func varUpdateRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext
 			Name:       commonUpdateArgs.NewName,
 			UpdateTime: commonUpdateArgs.UpdateTime,
 			Value:      value,
+			Enabled:    commonUpdateArgs.Enabled,
 		})
 		if err != nil {
 			return fmt.Errorf("could not update env var: %w", err)

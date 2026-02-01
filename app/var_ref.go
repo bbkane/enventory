@@ -28,6 +28,7 @@ func (e *EnvService) VarRefCreate(ctx context.Context, args models.VarRefCreateA
 		CreateTime: models.TimeToString(args.CreateTime),
 		UpdateTime: models.TimeToString(args.UpdateTime),
 		VarID:      varID,
+		Enabled:    models.BoolToInt64(args.Enabled),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("could not create env var ref: %w", err)
@@ -40,6 +41,7 @@ func (e *EnvService) VarRefCreate(ctx context.Context, args models.VarRefCreateA
 		UpdateTime: args.UpdateTime,
 		RefEnvName: args.RefEnvName,
 		RevVarName: args.RefVarName,
+		Enabled:    args.Enabled,
 	}, nil
 }
 
@@ -97,6 +99,7 @@ func (e *EnvService) VarRefList(ctx context.Context, envName string) ([]models.V
 			UpdateTime: models.StringToTimeMust(sqlcRef.UpdateTime),
 			RefEnvName: localVar.EnvName,
 			RevVarName: localVar.Name,
+			Enabled:    models.Int64ToBool(sqlcRef.Enabled),
 		})
 	}
 
@@ -132,6 +135,7 @@ func (e *EnvService) VarRefShow(ctx context.Context, envName string, name string
 			UpdateTime: models.StringToTimeMust(sqlcRef.UpdateTime),
 			RefEnvName: sqlcVar.EnvName,
 			RevVarName: sqlcVar.Name,
+			Enabled:    models.Int64ToBool(sqlcRef.Enabled),
 		}, &models.Var{
 			EnvName:    sqlcVar.EnvName,
 			Name:       sqlcVar.Name,
@@ -139,6 +143,7 @@ func (e *EnvService) VarRefShow(ctx context.Context, envName string, name string
 			CreateTime: sqlcVar.CreateTime,
 			UpdateTime: sqlcVar.UpdateTime,
 			Value:      sqlcVar.Value,
+			Enabled:    sqlcVar.Enabled,
 		}, nil
 }
 
@@ -190,6 +195,7 @@ func (e *EnvService) VarRefUpdate(ctx context.Context, envName string, name stri
 		CreateTime: models.TimePtrToStringPtr(args.CreateTime),
 		UpdateTime: models.TimePtrToStringPtr(args.UpdateTime),
 		VarID:      newVarID,
+		Enabled:    models.BoolPtrToInt64Ptr(args.Enabled),
 		VarRefID:   sqlcRef.VarRefID,
 	})
 

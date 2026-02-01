@@ -1,0 +1,6 @@
+╭────────────┬────────────────╮
+│ EnvName    │ envName01      │
+│ Name       │ varName01      │
+│ Value      │ value          │
+│ CreateTime │ Mon 0001-01-01 │
+╰────────────┴────────────────╯

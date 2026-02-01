@@ -5,9 +5,9 @@
 | Name | Columns | Comment | Type |
 | ---- | ------- | ------- | ---- |
 | [migration_v2](migration_v2.md) | 3 |  | table |
-| [env](env.md) | 5 |  | table |
-| [var](var.md) | 7 |  | table |
-| [var_ref](var_ref.md) | 7 |  | table |
+| [env](env.md) | 6 |  | table |
+| [var](var.md) | 8 |  | table |
+| [var_ref](var_ref.md) | 8 |  | table |
 | [vw_env_var_var_ref_unique_name](vw_env_var_var_ref_unique_name.md) | 2 |  | view |
 | [vw_var_expanded](vw_var_expanded.md) | 8 |  | view |
 | [vw_var_ref_expanded](vw_var_ref_expanded.md) | 10 |  | view |

@@ -1,0 +1,9 @@
+╭─────────────┬────────────────╮
+│ EnvName     │ envName02      │
+│ Name        │ varRefName01   │
+│ RefEnvName  │ envName01      │
+│ RefVarName  │ varName01      │
+│ RefVarValue │ val01          │
+│ CreateTime  │ Mon 0001-01-01 │
+│ Enabled     │ false          │
+╰─────────────┴────────────────╯

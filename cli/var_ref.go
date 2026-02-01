@@ -65,6 +65,7 @@ func varRefCreateRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCont
 				UpdateTime: commonCreateArgs.UpdateTime,
 				RefEnvName: refEnvName,
 				RefVarName: refVarName,
+				Enabled:    commonCreateArgs.Enabled,
 			},
 		)
 		if err != nil {
@@ -216,6 +217,7 @@ func varRefUpdateRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCont
 			UpdateTime: commonUpdateArgs.UpdateTime,
 			RefEnvName: refEnvName,
 			RefVarName: refVarName,
+			Enabled:    commonUpdateArgs.Enabled,
 		})
 		if err != nil {
 			return fmt.Errorf("could not update var ref: %w", err)

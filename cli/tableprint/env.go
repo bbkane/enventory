@@ -17,6 +17,7 @@ func EnvList(c CommonTablePrintArgs, envs []models.Env) {
 				newRow("Comment", e.Comment, skipRowIf(e.Comment == "")),
 				newRow("CreateTime", createTime),
 				newRow("UpdateTime", updateTime, skipRowIf(e.CreateTime.Equal(e.UpdateTime))),
+				newRow("Enabled", fmt.Sprintf("%t", e.Enabled), skipRowIf(e.Enabled)),
 			)
 		}
 		t.Render()
@@ -44,6 +45,7 @@ func EnvShowRun(
 			newRow("Comment", env.Comment, skipRowIf(env.Comment == "")),
 			newRow("CreateTime", createTime),
 			newRow("UpdateTime", updateTime, skipRowIf(env.CreateTime.Equal(env.UpdateTime))),
+			newRow("Enabled", fmt.Sprintf("%t", env.Enabled), skipRowIf(env.Enabled)),
 		)
 		t.Render()
 
@@ -57,6 +59,7 @@ func EnvShowRun(
 					newRow("Name", e.Name),
 					newRow("Value", mask(c.Mask, e.Value)),
 					newRow("Comment", e.Comment, skipRowIf(e.Comment == "")),
+					newRow("Enabled", fmt.Sprintf("%t", e.Enabled), skipRowIf(e.Enabled)),
 				)
 			}
 			t.Render()
@@ -73,6 +76,7 @@ func EnvShowRun(
 					newRow("RefVarName", referencedVars[i].Name),
 					newRow("RefVarValue", mask(c.Mask, referencedVars[i].Value)),
 					newRow("Comment", refs[i].Comment, skipRowIf(refs[i].Comment == "")),
+					newRow("Enabled", fmt.Sprintf("%t", refs[i].Enabled), skipRowIf(refs[i].Enabled)),
 				)
 			}
 			t.Render()

@@ -47,6 +47,7 @@ func (e *EnvService) EnvCreate(ctx context.Context, args models.EnvCreateArgs) (
 		Comment:    args.Comment,
 		CreateTime: models.TimeToString(args.CreateTime),
 		UpdateTime: models.TimeToString(args.UpdateTime),
+		Enabled:    models.BoolToInt64(args.Enabled),
 	})
 
 	if err != nil {
@@ -58,6 +59,7 @@ func (e *EnvService) EnvCreate(ctx context.Context, args models.EnvCreateArgs) (
 		Comment:    createdEnvRow.Comment,
 		CreateTime: models.StringToTimeMust(createdEnvRow.CreateTime),
 		UpdateTime: models.StringToTimeMust(createdEnvRow.UpdateTime),
+		Enabled:    models.Int64ToBool(createdEnvRow.Enabled),
 	}, nil
 }
 
@@ -100,6 +102,7 @@ func (e *EnvService) EnvList(ctx context.Context, args models.EnvListArgs) ([]mo
 			Comment:    e.Comment,
 			CreateTime: models.StringToTimeMust(e.CreateTime),
 			UpdateTime: models.StringToTimeMust(e.UpdateTime),
+			Enabled:    models.Int64ToBool(e.Enabled),
 		})
 	}
 
@@ -162,6 +165,7 @@ func (e *EnvService) EnvUpdate(ctx context.Context, name string, args models.Env
 		Comment:    args.Comment,
 		CreateTime: models.TimePtrToStringPtr(args.CreateTime),
 		UpdateTime: models.TimePtrToStringPtr(args.UpdateTime),
+		Enabled:    models.BoolPtrToInt64Ptr(args.Enabled),
 		Name:       name,
 	})
 
@@ -189,5 +193,6 @@ func (e *EnvService) EnvShow(ctx context.Context, name string) (*models.Env, err
 		Comment:    sqlcEnv.Comment,
 		CreateTime: models.StringToTimeMust(sqlcEnv.CreateTime),
 		UpdateTime: models.StringToTimeMust(sqlcEnv.UpdateTime),
+		Enabled:    models.Int64ToBool(sqlcEnv.Enabled),
 	}, nil
 }

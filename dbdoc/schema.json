@@ -1,1 +1,548 @@
-{"name":"Envelope Database Schema","desc":"","tables":[{"name":"migration_v2","type":"table","comment":"","columns":[{"name":"migration_v2_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"file_name","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"migrate_time","type":"TEXT","nullable":false,"default":null,"comment":""}],"indexes":[{"name":"sqlite_autoindex_migration_v2_1","def":"UNIQUE (file_name)","table":"migration_v2","columns":["file_name"],"comment":""}],"constraints":[{"name":"migration_v2_id","type":"PRIMARY KEY","def":"PRIMARY KEY (migration_v2_id)","table":"migration_v2","referenced_table":null,"columns":["migration_v2_id"],"referenced_columns":null,"comment":""},{"name":"sqlite_autoindex_migration_v2_1","type":"UNIQUE","def":"UNIQUE (file_name)","table":"migration_v2","referenced_table":null,"columns":["file_name"],"referenced_columns":null,"comment":""}],"triggers":[],"def":"CREATE TABLE migration_v2 (\n\tmigration_v2_id INTEGER PRIMARY KEY,\n\tfile_name TEXT NOT NULL,\n\tmigrate_time TEXT NOT NULL,\n\tUNIQUE(file_name)\n) STRICT"},{"name":"env","type":"table","comment":"","columns":[{"name":"env_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"name","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"comment","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"create_time","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"update_time","type":"TEXT","nullable":false,"default":null,"comment":""}],"indexes":[{"name":"sqlite_autoindex_env_1","def":"UNIQUE (name)","table":"env","columns":["name"],"comment":""}],"constraints":[{"name":"env_id","type":"PRIMARY KEY","def":"PRIMARY KEY (env_id)","table":"env","referenced_table":null,"columns":["env_id"],"referenced_columns":null,"comment":""},{"name":"sqlite_autoindex_env_1","type":"UNIQUE","def":"UNIQUE (name)","table":"env","referenced_table":null,"columns":["name"],"referenced_columns":null,"comment":""}],"triggers":[],"def":"CREATE TABLE env (\n    env_id INTEGER PRIMARY KEY,\n    name TEXT NOT NULL,\n    comment TEXT NOT NULL,\n    create_time TEXT NOT NULL,\n    update_time TEXT NOT NULL,\n    UNIQUE(name)\n) STRICT"},{"name":"var","type":"table","comment":"","columns":[{"name":"var_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"env_id","type":"INTEGER","nullable":false,"default":null,"comment":""},{"name":"name","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"comment","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"create_time","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"update_time","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"value","type":"TEXT","nullable":false,"default":null,"comment":""}],"indexes":[{"name":"ix_var_env_id","def":"CREATE INDEX ix_var_env_id ON var(env_id)","table":"var","columns":["env_id"],"comment":""},{"name":"sqlite_autoindex_var_1","def":"UNIQUE (env_id, name)","table":"var","columns":["env_id","name"],"comment":""}],"constraints":[{"name":"var_id","type":"PRIMARY KEY","def":"PRIMARY KEY (var_id)","table":"var","referenced_table":null,"columns":["var_id"],"referenced_columns":null,"comment":""},{"name":"- (Foreign key ID: 0)","type":"FOREIGN KEY","def":"FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE","table":"var","referenced_table":"env","columns":["env_id"],"referenced_columns":["env_id"],"comment":""},{"name":"sqlite_autoindex_var_1","type":"UNIQUE","def":"UNIQUE (env_id, name)","table":"var","referenced_table":null,"columns":["env_id","name"],"referenced_columns":null,"comment":""}],"triggers":[{"name":"tr_var_insert_check_unique_name","def":"CREATE TRIGGER tr_var_insert_check_unique_name\nBEFORE INSERT ON var\nFOR EACH ROW\nBEGIN\n    SELECT RAISE(FAIL, 'name already exists in env')\n    FROM\n    vw_env_var_var_ref_unique_name\n    WHERE env_id = NEW.env_id AND name = NEW.name;\nEND","comment":""},{"name":"tr_var_update_check_unique_name","def":"CREATE TRIGGER tr_var_update_check_unique_name\nBEFORE UPDATE ON var\nFOR EACH ROW\nBEGIN\n    SELECT\n        CASE\n            WHEN OLD.env_id != NEW.env_id OR OLD.name != NEW.name THEN (\n                SELECT RAISE(FAIL, 'name already exists in env')\n                FROM vw_env_var_var_ref_unique_name\n                WHERE env_id = NEW.env_id AND name = NEW.name\n            )\n            END;\n        END","comment":""}],"def":"CREATE TABLE \"var\" (\n    var_id INTEGER PRIMARY KEY,\n    env_id INTEGER NOT NULL,\n    name TEXT NOT NULL,\n    comment TEXT NOT NULL,\n    create_time TEXT NOT NULL,\n    update_time TEXT NOT NULL,\n    value TEXT NOT NULL,\n    FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE,\n    UNIQUE(env_id, name)\n) STRICT"},{"name":"var_ref","type":"table","comment":"","columns":[{"name":"var_ref_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"env_id","type":"INTEGER","nullable":false,"default":null,"comment":""},{"name":"name","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"comment","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"create_time","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"update_time","type":"TEXT","nullable":false,"default":null,"comment":""},{"name":"var_id","type":"INTEGER","nullable":false,"default":null,"comment":""}],"indexes":[{"name":"ix_var_ref_var_id","def":"CREATE INDEX ix_var_ref_var_id ON var_ref(var_id)","table":"var_ref","columns":["var_id"],"comment":""},{"name":"ix_var_ref_env_id","def":"CREATE INDEX ix_var_ref_env_id ON var_ref(env_id)","table":"var_ref","columns":["env_id"],"comment":""},{"name":"sqlite_autoindex_var_ref_1","def":"UNIQUE (env_id, name)","table":"var_ref","columns":["env_id","name"],"comment":""}],"constraints":[{"name":"var_ref_id","type":"PRIMARY KEY","def":"PRIMARY KEY (var_ref_id)","table":"var_ref","referenced_table":null,"columns":["var_ref_id"],"referenced_columns":null,"comment":""},{"name":"- (Foreign key ID: 0)","type":"FOREIGN KEY","def":"FOREIGN KEY (var_id) REFERENCES var (var_id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE","table":"var_ref","referenced_table":"var","columns":["var_id"],"referenced_columns":["var_id"],"comment":""},{"name":"- (Foreign key ID: 1)","type":"FOREIGN KEY","def":"FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE","table":"var_ref","referenced_table":"env","columns":["env_id"],"referenced_columns":["env_id"],"comment":""},{"name":"sqlite_autoindex_var_ref_1","type":"UNIQUE","def":"UNIQUE (env_id, name)","table":"var_ref","referenced_table":null,"columns":["env_id","name"],"referenced_columns":null,"comment":""}],"triggers":[{"name":"tr_var_ref_insert_check_unique_name","def":"CREATE TRIGGER tr_var_ref_insert_check_unique_name\nBEFORE INSERT ON var_ref\nFOR EACH ROW\nBEGIN\n    SELECT RAISE(FAIL, 'name already exists in env')\n    FROM\n    vw_env_var_var_ref_unique_name\n    WHERE env_id = NEW.env_id AND name = NEW.name;\nEND","comment":""},{"name":"tr_var_ref_update_check_unique_name","def":"CREATE TRIGGER tr_var_ref_update_check_unique_name\nBEFORE UPDATE ON var_ref\nFOR EACH ROW\nBEGIN\n    SELECT\n        CASE\n            WHEN OLD.env_id != NEW.env_id OR OLD.name != NEW.name THEN (\n                SELECT RAISE(FAIL, 'name already exists in env')\n                FROM vw_env_var_var_ref_unique_name\n                WHERE env_id = NEW.env_id AND name = NEW.name\n            )\n            END;\n        END","comment":""}],"def":"CREATE TABLE \"var_ref\" (\n    var_ref_id INTEGER PRIMARY KEY,\n    env_id INTEGER NOT NULL,\n    name TEXT NOT NULL,\n    comment TEXT NOT NULL,\n    create_time TEXT NOT NULL,\n    update_time TEXT NOT NULL,\n    var_id INTEGER NOT NULL,\n    FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE,\n    FOREIGN KEY (var_id) REFERENCES \"var\"(var_id) ON DELETE RESTRICT,\n    UNIQUE(env_id, name)\n)"},{"name":"vw_env_var_var_ref_unique_name","type":"view","comment":"","columns":[{"name":"env_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"name","type":"TEXT","nullable":true,"default":null,"comment":""}],"indexes":[],"constraints":[],"triggers":[],"def":"CREATE VIEW vw_env_var_var_ref_unique_name AS\nSELECT e.env_id, vr.name\nFROM env e JOIN var_ref vr ON e.env_id = vr.env_id\nUNION ALL\nSELECT e.env_id, v.name\nFROM env e JOIN var v ON e.env_id = v.env_id","referenced_tables":["env","var_ref","var"]},{"name":"vw_var_expanded","type":"view","comment":"","columns":[{"name":"var_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"env_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"env_name","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"name","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"value","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"comment","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"create_time","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"update_time","type":"TEXT","nullable":true,"default":null,"comment":""}],"indexes":[],"constraints":[],"triggers":[],"def":"CREATE VIEW vw_var_expanded AS\nSELECT\n    var_id,\n    env_id,\n    (SELECT name FROM env WHERE env_id = var.env_id) AS env_name,\n    name,\n    value,\n    comment,\n    create_time,\n    update_time\nFROM var","referenced_tables":["env","var"]},{"name":"vw_var_ref_expanded","type":"view","comment":"","columns":[{"name":"var_ref_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"env_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"env_name","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"name","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"var_id","type":"INTEGER","nullable":true,"default":null,"comment":""},{"name":"ref_var_name","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"ref_env_name","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"comment","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"create_time","type":"TEXT","nullable":true,"default":null,"comment":""},{"name":"update_time","type":"TEXT","nullable":true,"default":null,"comment":""}],"indexes":[],"constraints":[],"triggers":[],"def":"CREATE VIEW vw_var_ref_expanded AS\nSELECT\n    var_ref_id,\n    env_id,\n    (SELECT name FROM env WHERE env_id = var_ref.env_id) AS env_name,\n    name,\n    var_id,\n    (SELECT name FROM var WHERE var_id = var_ref.var_id) AS ref_var_name,\n    (SELECT env.name FROM env JOIN var ON env.env_id = var.env_id WHERE var.var_id = var_ref.var_id) AS ref_env_name,\n    comment,\n    create_time,\n    update_time\nFROM var_ref","referenced_tables":["env","var","var_ref"]}],"relations":[{"table":"var","columns":["env_id"],"cardinality":"Zero or more","parent_table":"env","parent_columns":["env_id"],"parent_cardinality":"Exactly one","def":"FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE","virtual":false},{"table":"var_ref","columns":["var_id"],"cardinality":"Zero or more","parent_table":"var","parent_columns":["var_id"],"parent_cardinality":"Exactly one","def":"FOREIGN KEY (var_id) REFERENCES var (var_id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE","virtual":false},{"table":"var_ref","columns":["env_id"],"cardinality":"Zero or more","parent_table":"env","parent_columns":["env_id"],"parent_cardinality":"Exactly one","def":"FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE","virtual":false}],"functions":null,"driver":{"name":"sqlite","database_version":"3.45.1","meta":{}}}
+{
+  "name": "Envelope Database Schema",
+  "tables": [
+    {
+      "name": "migration_v2",
+      "type": "table",
+      "columns": [
+        {
+          "name": "migration_v2_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "file_name",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "migrate_time",
+          "type": "TEXT",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_migration_v2_1",
+          "def": "UNIQUE (file_name)",
+          "table": "migration_v2",
+          "columns": [
+            "file_name"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "migration_v2_id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (migration_v2_id)",
+          "table": "migration_v2",
+          "columns": [
+            "migration_v2_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_migration_v2_1",
+          "type": "UNIQUE",
+          "def": "UNIQUE (file_name)",
+          "table": "migration_v2",
+          "columns": [
+            "file_name"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE migration_v2 (\n\tmigration_v2_id INTEGER PRIMARY KEY,\n\tfile_name TEXT NOT NULL,\n\tmigrate_time TEXT NOT NULL,\n\tUNIQUE(file_name)\n) STRICT"
+    },
+    {
+      "name": "env",
+      "type": "table",
+      "columns": [
+        {
+          "name": "env_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "comment",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "create_time",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "update_time",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "1"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_env_1",
+          "def": "UNIQUE (name)",
+          "table": "env",
+          "columns": [
+            "name"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "env_id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (env_id)",
+          "table": "env",
+          "columns": [
+            "env_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_env_1",
+          "type": "UNIQUE",
+          "def": "UNIQUE (name)",
+          "table": "env",
+          "columns": [
+            "name"
+          ]
+        }
+      ],
+      "def": "CREATE TABLE env (\n    env_id INTEGER PRIMARY KEY,\n    name TEXT NOT NULL,\n    comment TEXT NOT NULL,\n    create_time TEXT NOT NULL,\n    update_time TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1,\n    UNIQUE(name)\n) STRICT"
+    },
+    {
+      "name": "var",
+      "type": "table",
+      "columns": [
+        {
+          "name": "var_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "env_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "comment",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "create_time",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "update_time",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "1"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_var_env_id",
+          "def": "CREATE INDEX ix_var_env_id ON var(env_id)",
+          "table": "var",
+          "columns": [
+            "env_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_var_1",
+          "def": "UNIQUE (env_id, name)",
+          "table": "var",
+          "columns": [
+            "env_id",
+            "name"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "var_id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (var_id)",
+          "table": "var",
+          "columns": [
+            "var_id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE",
+          "table": "var",
+          "referenced_table": "env",
+          "columns": [
+            "env_id"
+          ],
+          "referenced_columns": [
+            "env_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_var_1",
+          "type": "UNIQUE",
+          "def": "UNIQUE (env_id, name)",
+          "table": "var",
+          "columns": [
+            "env_id",
+            "name"
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "name": "tr_var_insert_check_unique_name",
+          "def": "CREATE TRIGGER tr_var_insert_check_unique_name\nBEFORE INSERT ON var\nFOR EACH ROW\nBEGIN\n    SELECT RAISE(FAIL, 'name already exists in env')\n    FROM\n    vw_env_var_var_ref_unique_name\n    WHERE env_id = NEW.env_id AND name = NEW.name;\nEND"
+        },
+        {
+          "name": "tr_var_update_check_unique_name",
+          "def": "CREATE TRIGGER tr_var_update_check_unique_name\nBEFORE UPDATE ON var\nFOR EACH ROW\nBEGIN\n    SELECT\n        CASE\n            WHEN OLD.env_id != NEW.env_id OR OLD.name != NEW.name THEN (\n                SELECT RAISE(FAIL, 'name already exists in env')\n                FROM vw_env_var_var_ref_unique_name\n                WHERE env_id = NEW.env_id AND name = NEW.name\n            )\n            END;\n        END"
+        }
+      ],
+      "def": "CREATE TABLE \"var\" (\n    var_id INTEGER PRIMARY KEY,\n    env_id INTEGER NOT NULL,\n    name TEXT NOT NULL,\n    comment TEXT NOT NULL,\n    create_time TEXT NOT NULL,\n    update_time TEXT NOT NULL,\n    value TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1,\n    FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE,\n    UNIQUE(env_id, name)\n) STRICT"
+    },
+    {
+      "name": "var_ref",
+      "type": "table",
+      "columns": [
+        {
+          "name": "var_ref_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "env_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "comment",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "create_time",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "update_time",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "var_id",
+          "type": "INTEGER",
+          "nullable": false
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "1"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_var_ref_var_id",
+          "def": "CREATE INDEX ix_var_ref_var_id ON var_ref(var_id)",
+          "table": "var_ref",
+          "columns": [
+            "var_id"
+          ]
+        },
+        {
+          "name": "ix_var_ref_env_id",
+          "def": "CREATE INDEX ix_var_ref_env_id ON var_ref(env_id)",
+          "table": "var_ref",
+          "columns": [
+            "env_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_var_ref_1",
+          "def": "UNIQUE (env_id, name)",
+          "table": "var_ref",
+          "columns": [
+            "env_id",
+            "name"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "var_ref_id",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (var_ref_id)",
+          "table": "var_ref",
+          "columns": [
+            "var_ref_id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 0)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (var_id) REFERENCES var (var_id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE",
+          "table": "var_ref",
+          "referenced_table": "var",
+          "columns": [
+            "var_id"
+          ],
+          "referenced_columns": [
+            "var_id"
+          ]
+        },
+        {
+          "name": "- (Foreign key ID: 1)",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE",
+          "table": "var_ref",
+          "referenced_table": "env",
+          "columns": [
+            "env_id"
+          ],
+          "referenced_columns": [
+            "env_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_var_ref_1",
+          "type": "UNIQUE",
+          "def": "UNIQUE (env_id, name)",
+          "table": "var_ref",
+          "columns": [
+            "env_id",
+            "name"
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "name": "tr_var_ref_insert_check_unique_name",
+          "def": "CREATE TRIGGER tr_var_ref_insert_check_unique_name\nBEFORE INSERT ON var_ref\nFOR EACH ROW\nBEGIN\n    SELECT RAISE(FAIL, 'name already exists in env')\n    FROM\n    vw_env_var_var_ref_unique_name\n    WHERE env_id = NEW.env_id AND name = NEW.name;\nEND"
+        },
+        {
+          "name": "tr_var_ref_update_check_unique_name",
+          "def": "CREATE TRIGGER tr_var_ref_update_check_unique_name\nBEFORE UPDATE ON var_ref\nFOR EACH ROW\nBEGIN\n    SELECT\n        CASE\n            WHEN OLD.env_id != NEW.env_id OR OLD.name != NEW.name THEN (\n                SELECT RAISE(FAIL, 'name already exists in env')\n                FROM vw_env_var_var_ref_unique_name\n                WHERE env_id = NEW.env_id AND name = NEW.name\n            )\n            END;\n        END"
+        }
+      ],
+      "def": "CREATE TABLE \"var_ref\" (\n    var_ref_id INTEGER PRIMARY KEY,\n    env_id INTEGER NOT NULL,\n    name TEXT NOT NULL,\n    comment TEXT NOT NULL,\n    create_time TEXT NOT NULL,\n    update_time TEXT NOT NULL,\n    var_id INTEGER NOT NULL, enabled INTEGER NOT NULL DEFAULT 1,\n    FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE,\n    FOREIGN KEY (var_id) REFERENCES \"var\"(var_id) ON DELETE RESTRICT,\n    UNIQUE(env_id, name)\n)"
+    },
+    {
+      "name": "vw_env_var_var_ref_unique_name",
+      "type": "view",
+      "columns": [
+        {
+          "name": "env_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW vw_env_var_var_ref_unique_name AS\nSELECT e.env_id, vr.name\nFROM env e JOIN var_ref vr ON e.env_id = vr.env_id\nUNION ALL\nSELECT e.env_id, v.name\nFROM env e JOIN var v ON e.env_id = v.env_id",
+      "referenced_tables": [
+        "env",
+        "var_ref",
+        "var"
+      ]
+    },
+    {
+      "name": "vw_var_expanded",
+      "type": "view",
+      "columns": [
+        {
+          "name": "var_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "env_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "env_name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "value",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "comment",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "create_time",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "update_time",
+          "type": "TEXT",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW vw_var_expanded AS\nSELECT\n    var_id,\n    env_id,\n    (SELECT name FROM env WHERE env_id = var.env_id) AS env_name,\n    name,\n    value,\n    comment,\n    create_time,\n    update_time\nFROM var",
+      "referenced_tables": [
+        "env",
+        "var"
+      ]
+    },
+    {
+      "name": "vw_var_ref_expanded",
+      "type": "view",
+      "columns": [
+        {
+          "name": "var_ref_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "env_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "env_name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "var_id",
+          "type": "INTEGER",
+          "nullable": true
+        },
+        {
+          "name": "ref_var_name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "ref_env_name",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "comment",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "create_time",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "update_time",
+          "type": "TEXT",
+          "nullable": true
+        }
+      ],
+      "def": "CREATE VIEW vw_var_ref_expanded AS\nSELECT\n    var_ref_id,\n    env_id,\n    (SELECT name FROM env WHERE env_id = var_ref.env_id) AS env_name,\n    name,\n    var_id,\n    (SELECT name FROM var WHERE var_id = var_ref.var_id) AS ref_var_name,\n    (SELECT env.name FROM env JOIN var ON env.env_id = var.env_id WHERE var.var_id = var_ref.var_id) AS ref_env_name,\n    comment,\n    create_time,\n    update_time\nFROM var_ref",
+      "referenced_tables": [
+        "env",
+        "var",
+        "var_ref"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "table": "var",
+      "columns": [
+        "env_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "env",
+      "parent_columns": [
+        "env_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE"
+    },
+    {
+      "table": "var_ref",
+      "columns": [
+        "var_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "var",
+      "parent_columns": [
+        "var_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (var_id) REFERENCES var (var_id) ON UPDATE NO ACTION ON DELETE RESTRICT MATCH NONE"
+    },
+    {
+      "table": "var_ref",
+      "columns": [
+        "env_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "env",
+      "parent_columns": [
+        "env_id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (env_id) REFERENCES env (env_id) ON UPDATE NO ACTION ON DELETE CASCADE MATCH NONE"
+    }
+  ],
+  "driver": {
+    "name": "sqlite",
+    "database_version": "3.51.1"
+  }
+}

@@ -87,7 +87,7 @@ on development tooling and CI/CD setup (including demo gif generation)
 Install:
 
 ```bash
-brew install k1LoW/tap/tbls
+brew install tbls
 ```
 
 Run:

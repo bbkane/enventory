@@ -1,8 +1,8 @@
 -- name: VarRefCreate :exec
 INSERT INTO var_ref(
-    env_id, name, comment, create_time, update_time, var_id
+    env_id, name, comment, create_time, update_time, var_id, enabled
 ) VALUES (
-    ?     , ?   , ?      , ?          , ?          , ?
+    ?     , ?   , ?      , ?          , ?          , ?     , ?
 );
 
 -- name: VarRefDelete :execrows
@@ -31,5 +31,6 @@ UPDATE var_ref SET
     comment = COALESCE(sqlc.narg('comment'), comment),
     create_time = COALESCE(sqlc.narg('create_time'), create_time),
     update_time = COALESCE(sqlc.narg('update_time'), update_time),
-    var_id = COALESCE(sqlc.narg('var_id'), var_id)
+    var_id = COALESCE(sqlc.narg('var_id'), var_id),
+    enabled = COALESCE(sqlc.narg('enabled'), enabled)
 WHERE var_ref_id = sqlc.arg('var_ref_id');

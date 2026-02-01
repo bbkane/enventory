@@ -286,6 +286,13 @@ func commonCreateFlagMapPtrs(comment *string, createTime *time.Time, updateTime 
 			),
 			warg.Required(),
 		),
+		"--enabled": warg.NewFlag(
+			"Whether this item is enabled",
+			scalar.Bool(
+				scalar.Default(true),
+			),
+			warg.Required(),
+		),
 	}
 	return commonCreateFlags
 }
@@ -313,6 +320,13 @@ func commonCreateFlagMap() warg.FlagMap {
 			scalar.New(
 				datetime(),
 				scalar.Default(now),
+			),
+			warg.Required(),
+		),
+		"--enabled": warg.NewFlag(
+			"Whether this item is enabled",
+			scalar.Bool(
+				scalar.Default(true),
 			),
 			warg.Required(),
 		),
@@ -344,6 +358,10 @@ func commonUpdateFlags() warg.FlagMap {
 				scalar.Default(time.Now()),
 			),
 			warg.UnsetSentinel("UNSET"),
+		),
+		"--enabled": warg.NewFlag(
+			"Whether this item is enabled",
+			scalar.Bool(),
 		),
 	}
 	return commonUpdateFlags
@@ -391,6 +409,7 @@ type commonCreateArgs struct {
 	Comment    string
 	CreateTime time.Time
 	UpdateTime time.Time
+	Enabled    bool
 }
 
 func mustGetCommonCreateArgs(pf warg.PassedFlags) commonCreateArgs {
@@ -398,6 +417,7 @@ func mustGetCommonCreateArgs(pf warg.PassedFlags) commonCreateArgs {
 		Comment:    pf["--comment"].(string),
 		CreateTime: pf["--create-time"].(time.Time),
 		UpdateTime: pf["--update-time"].(time.Time),
+		Enabled:    pf["--enabled"].(bool),
 	}
 }
 
@@ -406,6 +426,7 @@ type commonUpdateArgs struct {
 	CreateTime *time.Time
 	NewName    *string
 	UpdateTime *time.Time
+	Enabled    *bool
 }
 
 func getCommonUpdateArgs(pf warg.PassedFlags) commonUpdateArgs {
@@ -414,6 +435,7 @@ func getCommonUpdateArgs(pf warg.PassedFlags) commonUpdateArgs {
 		CreateTime: ptrFromMap[time.Time](pf, "--create-time"),
 		NewName:    ptrFromMap[string](pf, "--new-name"),
 		UpdateTime: ptrFromMap[time.Time](pf, "--update-time"),
+		Enabled:    ptrFromMap[bool](pf, "--enabled"),
 	}
 }
 

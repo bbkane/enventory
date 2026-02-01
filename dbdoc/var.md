@@ -13,7 +13,7 @@ CREATE TABLE "var" (
     comment TEXT NOT NULL,
     create_time TEXT NOT NULL,
     update_time TEXT NOT NULL,
-    value TEXT NOT NULL,
+    value TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1,
     FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE,
     UNIQUE(env_id, name)
 ) STRICT
@@ -32,6 +32,7 @@ CREATE TABLE "var" (
 | create_time | TEXT |  | false |  |  |  |
 | update_time | TEXT |  | false |  |  |  |
 | value | TEXT |  | false |  |  |  |
+| enabled | INTEGER | 1 | false |  |  |  |
 
 ## Constraints
 
@@ -52,8 +53,8 @@ CREATE TABLE "var" (
 
 | Name | Definition |
 | ---- | ---------- |
-| tr_var_insert_check_unique_name | CREATE TRIGGER tr_var_insert_check_unique_name<br>BEFORE INSERT ON var<br>FOR EACH ROW<br>BEGIN<br>    SELECT RAISE(FAIL, 'name already exists in env')<br>    FROM<br>    vw_env_var_var_ref_unique_name<br>    WHERE env_id = NEW.env_id AND name = NEW.name;<br>END |
-| tr_var_update_check_unique_name | CREATE TRIGGER tr_var_update_check_unique_name<br>BEFORE UPDATE ON var<br>FOR EACH ROW<br>BEGIN<br>    SELECT<br>        CASE<br>            WHEN OLD.env_id != NEW.env_id OR OLD.name != NEW.name THEN (<br>                SELECT RAISE(FAIL, 'name already exists in env')<br>                FROM vw_env_var_var_ref_unique_name<br>                WHERE env_id = NEW.env_id AND name = NEW.name<br>            )<br>            END;<br>        END |
+| tr_var_insert_check_unique_name | CREATE TRIGGER tr_var_insert_check_unique_name<br />BEFORE INSERT ON var<br />FOR EACH ROW<br />BEGIN<br />    SELECT RAISE(FAIL, 'name already exists in env')<br />    FROM<br />    vw_env_var_var_ref_unique_name<br />    WHERE env_id = NEW.env_id AND name = NEW.name;<br />END |
+| tr_var_update_check_unique_name | CREATE TRIGGER tr_var_update_check_unique_name<br />BEFORE UPDATE ON var<br />FOR EACH ROW<br />BEGIN<br />    SELECT<br />        CASE<br />            WHEN OLD.env_id != NEW.env_id OR OLD.name != NEW.name THEN (<br />                SELECT RAISE(FAIL, 'name already exists in env')<br />                FROM vw_env_var_var_ref_unique_name<br />                WHERE env_id = NEW.env_id AND name = NEW.name<br />            )<br />            END;<br />        END |
 
 ## Relations
 

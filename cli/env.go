@@ -17,6 +17,8 @@ func EnvCreateCmd() warg.Cmd {
 	return warg.NewCmd(
 		"Create an environment",
 		withSetup(func(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) error {
+			// Get enabled from flags since it's not using PointerTo
+			createArgs.Enabled = cmdCtx.Flags["--enabled"].(bool)
 			var env *models.Env
 			err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 				var err error
@@ -225,6 +227,7 @@ func envUpdate(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) e
 	createTime := ptrFromMap[time.Time](cmdCtx.Flags, "--create-time")
 	newName := ptrFromMap[string](cmdCtx.Flags, "--new-name")
 	updateTime := ptrFromMap[time.Time](cmdCtx.Flags, "--update-time")
+	enabled := ptrFromMap[bool](cmdCtx.Flags, "--enabled")
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
@@ -234,6 +237,7 @@ func envUpdate(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) e
 			CreateTime: createTime,
 			Name:       newName,
 			UpdateTime: updateTime,
+			Enabled:    enabled,
 		})
 		if err != nil {
 			return fmt.Errorf("could not update env: %w", err)

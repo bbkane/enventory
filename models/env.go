@@ -16,6 +16,7 @@ type Env struct {
 	Comment    string
 	CreateTime time.Time
 	UpdateTime time.Time
+	Enabled    bool
 }
 
 type EnvCreateArgs struct {
@@ -23,6 +24,7 @@ type EnvCreateArgs struct {
 	Comment    string
 	CreateTime time.Time
 	UpdateTime time.Time
+	Enabled    bool
 }
 
 type EnvListArgs struct {
@@ -34,6 +36,7 @@ type EnvUpdateArgs struct {
 	CreateTime *time.Time
 	Name       *string
 	UpdateTime *time.Time
+	Enabled    *bool
 }
 
 // -- Var
@@ -47,6 +50,7 @@ type Var struct {
 	CreateTime time.Time
 	UpdateTime time.Time
 	Value      string
+	Enabled    bool
 }
 
 type VarCreateArgs struct {
@@ -56,6 +60,7 @@ type VarCreateArgs struct {
 	CreateTime time.Time
 	UpdateTime time.Time
 	Value      string
+	Enabled    bool
 }
 
 type VarUpdateArgs struct {
@@ -65,6 +70,7 @@ type VarUpdateArgs struct {
 	Name       *string
 	UpdateTime *time.Time
 	Value      *string
+	Enabled    *bool
 }
 
 // -- VarRef
@@ -79,6 +85,7 @@ type VarRef struct {
 	UpdateTime time.Time
 	RefEnvName string
 	RevVarName string
+	Enabled    bool
 }
 
 type VarRefCreateArgs struct {
@@ -89,6 +96,7 @@ type VarRefCreateArgs struct {
 	UpdateTime time.Time
 	RefEnvName string
 	RefVarName string
+	Enabled    bool
 }
 
 type VarRefUpdateArgs struct {
@@ -99,6 +107,7 @@ type VarRefUpdateArgs struct {
 	UpdateTime *time.Time
 	RefEnvName *string // for --ref-env
 	RefVarName *string // for --ref-var
+	Enabled    *bool
 }
 
 // -- interface

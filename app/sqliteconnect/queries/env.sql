@@ -1,10 +1,10 @@
 -- name: EnvCreate :one
 INSERT INTO env (
-    name, comment, create_time, update_time
+    name, comment, create_time, update_time, enabled
 ) VALUES (
-    ?   , ?      , ?          , ?
+    ?   , ?      , ?          , ?          , ?
 )
-RETURNING name, comment, create_time, update_time;
+RETURNING name, comment, create_time, update_time, enabled;
 
 -- name: EnvDelete :execrows
 DELETE FROM env WHERE name = ?;
@@ -18,7 +18,7 @@ ORDER BY name ASC;
 
 -- name: EnvShow :one
 SELECT
-    name, comment, create_time, update_time
+    name, comment, create_time, update_time, enabled
 FROM env
 WHERE name = ?;
 
@@ -28,5 +28,6 @@ UPDATE env SET
     name = COALESCE(sqlc.narg('new_name'), name),
     comment = COALESCE(sqlc.narg('comment'), comment),
     create_time = COALESCE(sqlc.narg('create_time'), create_time),
-    update_time = COALESCE(sqlc.narg('update_time'), update_time)
+    update_time = COALESCE(sqlc.narg('update_time'), update_time),
+    enabled = COALESCE(sqlc.narg('enabled'), enabled)
 WHERE name = sqlc.arg('name');

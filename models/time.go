@@ -38,3 +38,25 @@ func StringToTimeMust(s string) time.Time {
 	}
 	return t.Round(0)
 }
+
+// BoolToInt64 converts a bool to int64 (1 for true, 0 for false)
+func BoolToInt64(b bool) int64 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+// Int64ToBool converts an int64 to bool (non-zero is true)
+func Int64ToBool(i int64) bool {
+	return i != 0
+}
+
+// BoolPtrToInt64Ptr converts a *bool to *int64
+func BoolPtrToInt64Ptr(b *bool) *int64 {
+	if b == nil {
+		return nil
+	}
+	i := BoolToInt64(*b)
+	return &i
+}

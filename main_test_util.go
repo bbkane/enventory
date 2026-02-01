@@ -117,6 +117,14 @@ func (tcb *testCmdBuilder) Confirm(confirm bool) *testCmdBuilder {
 	return tcb.Strs("--confirm", confirmStr)
 }
 
+func (tcb *testCmdBuilder) Enabled(enabled bool) *testCmdBuilder {
+	enabledStr := "false"
+	if enabled {
+		enabledStr = "true"
+	}
+	return tcb.Strs("--enabled", enabledStr)
+}
+
 type testcase struct {
 	name            string
 	args            []string

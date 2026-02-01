@@ -11,7 +11,7 @@ CREATE TABLE env (
     name TEXT NOT NULL,
     comment TEXT NOT NULL,
     create_time TEXT NOT NULL,
-    update_time TEXT NOT NULL,
+    update_time TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1,
     UNIQUE(name)
 ) STRICT
 ```
@@ -27,6 +27,7 @@ CREATE TABLE env (
 | comment | TEXT |  | false |  |  |  |
 | create_time | TEXT |  | false |  |  |  |
 | update_time | TEXT |  | false |  |  |  |
+| enabled | INTEGER | 1 | false |  |  |  |
 
 ## Constraints
 

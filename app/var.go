@@ -25,6 +25,7 @@ func (e *EnvService) varFindByID(ctx context.Context, id int64) (*models.Var, er
 		CreateTime: models.StringToTimeMust(sqlcVar.CreateTime),
 		UpdateTime: models.StringToTimeMust(sqlcVar.UpdateTime),
 		Value:      sqlcVar.Value,
+		Enabled:    models.Int64ToBool(sqlcVar.Enabled),
 	}, nil
 }
 
@@ -63,6 +64,7 @@ func (e *EnvService) VarCreate(ctx context.Context, args models.VarCreateArgs) (
 		CreateTime: models.TimeToString(args.CreateTime),
 		UpdateTime: models.TimeToString(args.UpdateTime),
 		Value:      args.Value,
+		Enabled:    models.BoolToInt64(args.Enabled),
 	})
 
 	if err != nil {
@@ -75,6 +77,7 @@ func (e *EnvService) VarCreate(ctx context.Context, args models.VarCreateArgs) (
 		CreateTime: args.CreateTime,
 		UpdateTime: args.UpdateTime,
 		Value:      args.Value,
+		Enabled:    args.Enabled,
 	}, nil
 }
 
@@ -120,6 +123,7 @@ func (e *EnvService) VarList(ctx context.Context, envName string) ([]models.Var,
 			EnvName:    envName,
 			UpdateTime: models.StringToTimeMust(sqlcEnv.UpdateTime),
 			Value:      sqlcEnv.Value,
+			Enabled:    models.Int64ToBool(sqlcEnv.Enabled),
 		})
 	}
 
@@ -157,6 +161,7 @@ func (e *EnvService) VarShow(ctx context.Context, envName string, name string) (
 			UpdateTime: models.StringToTimeMust(e.UpdateTime),
 			RefEnvName: envName,
 			RevVarName: name,
+			Enabled:    models.Int64ToBool(e.Enabled),
 		})
 	}
 
@@ -167,6 +172,7 @@ func (e *EnvService) VarShow(ctx context.Context, envName string, name string) (
 		CreateTime: models.StringToTimeMust(sqlEnvLocalVar.CreateTime),
 		UpdateTime: models.StringToTimeMust(sqlEnvLocalVar.UpdateTime),
 		Value:      sqlEnvLocalVar.Value,
+		Enabled:    models.Int64ToBool(sqlEnvLocalVar.Enabled),
 	}, envRefs, nil
 }
 
@@ -194,6 +200,7 @@ func (e *EnvService) VarUpdate(ctx context.Context, envName string, name string,
 		CreateTime: models.TimePtrToStringPtr(args.CreateTime),
 		UpdateTime: models.TimePtrToStringPtr(args.UpdateTime),
 		Value:      args.Value,
+		Enabled:    models.BoolPtrToInt64Ptr(args.Enabled),
 		VarID:      envVarID,
 	})
 
