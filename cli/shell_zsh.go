@@ -138,57 +138,45 @@ func shellZshExportUnexport(ctx context.Context, cmdCtx warg.CmdContext, es mode
 	envName := mustGetEnvNameArg(cmdCtx.Flags)
 	noEnvNoProblem := cmdCtx.Flags["--no-env-no-problem"].(bool)
 
-	envVars, err := es.VarList(ctx, envName)
+	exportables, err := es.EnvExportableList(ctx, envName)
 	if err != nil {
 		if errors.Is(err, models.ErrEnvNotFound) && noEnvNoProblem {
 			return nil
 		}
-		return fmt.Errorf("could not list env vars: %s: %w", envName, err)
+		return fmt.Errorf("could not list exportable env vars: %s: %w", envName, err)
 	}
 
-	envRefs, envRefVars, err := es.VarRefList(ctx, envName)
-	if err != nil {
-		if errors.Is(err, models.ErrEnvNotFound) && noEnvNoProblem {
-			return nil
-		}
-		return fmt.Errorf("could not list env refs: %s: %w", envName, err)
+	if len(exportables) == 0 {
+		return nil
 	}
 
-	switch scriptType {
-	case "export":
-		if len(envVars)+len(envRefs) > 0 {
-			fmt.Fprintf(cmdCtx.Stdout, "printf '%s:';\n", cmdCtx.App.Name)
-			for _, ev := range envVars {
-				fmt.Fprintf(cmdCtx.Stdout, "printf ' +%s';\n", shellescape.Quote(ev.Name))
-				fmt.Fprintf(cmdCtx.Stdout, "export %s=%s;\n", shellescape.Quote(ev.Name), shellescape.Quote(ev.Value))
-			}
-
-			for i := range len(envRefs) {
-				fmt.Fprintf(cmdCtx.Stdout, "printf ' +%s';\n", shellescape.Quote(envRefs[i].Name))
-				fmt.Fprintf(cmdCtx.Stdout, "export %s=%s;\n", shellescape.Quote(envRefs[i].Name), shellescape.Quote(envRefVars[i].Value))
-			}
-			fmt.Fprintf(cmdCtx.Stdout, "echo;\n")
+	kvs := make([]kv, 0, len(exportables))
+	for _, e := range exportables {
+		if e.Enabled {
+			kvs = append(kvs, kv{
+				Name:  e.Name,
+				Value: e.Value,
+			})
 		}
-
-	case "unexport":
-		if len(envVars)+len(envRefs) > 0 {
-			fmt.Fprintf(cmdCtx.Stdout, "printf '%s:';\n", cmdCtx.App.Name)
-			for _, ev := range envVars {
-				fmt.Fprintf(cmdCtx.Stdout, "printf ' -%s';\n", shellescape.Quote(ev.Name))
-				fmt.Fprintf(cmdCtx.Stdout, "unset %s;\n", shellescape.Quote(ev.Name))
-			}
-
-			for _, er := range envRefs {
-				fmt.Fprintf(cmdCtx.Stdout, "printf ' -%s';\n", shellescape.Quote(er.Name))
-				fmt.Fprintf(cmdCtx.Stdout, "unset %s;\n", shellescape.Quote(er.Name))
-			}
-			fmt.Fprintf(cmdCtx.Stdout, "echo;\n")
-		}
-	default:
-		return errors.New("unimplemented --script-type: " + scriptType)
-
 	}
+	if len(kvs) == 0 {
+		return nil
+	}
+	fmt.Fprintf(cmdCtx.Stdout, "printf '%s:';\n", cmdCtx.App.Name)
 
+	for _, e := range kvs {
+		switch scriptType {
+		case "export":
+			fmt.Fprintf(cmdCtx.Stdout, "printf ' +%s';\n", shellescape.Quote(e.Name))
+			fmt.Fprintf(cmdCtx.Stdout, "export %s=%s;\n", shellescape.Quote(e.Name), shellescape.Quote(e.Value))
+		case "unexport":
+			fmt.Fprintf(cmdCtx.Stdout, "printf ' -%s';\n", shellescape.Quote(e.Name))
+			fmt.Fprintf(cmdCtx.Stdout, "unset %s;\n", shellescape.Quote(e.Name))
+		default:
+			return errors.New("unimplemented --script-type: " + scriptType)
+		}
+	}
+	fmt.Fprintf(cmdCtx.Stdout, "echo;\n")
 	return nil
 }
 
@@ -224,48 +212,26 @@ func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCon
 		lookupEnv = custom.(LookupEnvFunc)
 	}
 
-	// TODO: once I update vw_env_var_env_ref_unique_name to have the value, I can just query from there instead of two separate queries.
-	// TODO: if the environment isn't found, we shouldn't query for refs in the same env
-	oldVars, err := es.VarList(ctx, oldEnvName)
+	newExportables, err := es.EnvExportableList(ctx, newEnvName)
 	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
-		return fmt.Errorf("could not list old env vars: %s: %w", oldEnvName, err)
+		return fmt.Errorf("could not list new env exportables: %s: %w", newEnvName, err)
 	}
-	newVars, err := es.VarList(ctx, newEnvName)
+	oldExportables, err := es.EnvExportableList(ctx, oldEnvName)
 	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
-		return fmt.Errorf("could not list new env vars: %s: %w", newEnvName, err)
+		return fmt.Errorf("could not list old env exportables: %s: %w", oldEnvName, err)
 	}
 
-	oldRefs, oldRefVars, err := es.VarRefList(ctx, oldEnvName)
-	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
-		return fmt.Errorf("could not list old env refs: %s: %w", oldEnvName, err)
+	newKVs := make(map[string]string, len(newExportables))
+	oldKVs := make(map[string]string, len(oldExportables))
+	for _, ev := range newExportables {
+		newKVs[ev.Name] = ev.Value
 	}
-	newRefs, newRefVars, err := es.VarRefList(ctx, newEnvName)
-	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
-		return fmt.Errorf("could not list new env refs: %s: %w", newEnvName, err)
-	}
-
-	// turn them into maps for ease of checking...
-	newKVs := make(map[string]string, len(newVars)+len(newRefs))
-	for _, v := range newVars {
-		newKVs[v.Name] = v.Value
-	}
-	for i := range newRefs {
-		newKVs[newRefs[i].Name] = newRefVars[i].Value
-	}
-	oldKVs := make(map[string]string, len(oldVars)+len(oldRefs))
-	for _, v := range oldVars {
+	for _, ev := range oldExportables {
 		// if it exists in the new env, we don't need to process in the old env
-		if _, exists := newKVs[v.Name]; exists {
+		if _, exists := newKVs[ev.Name]; exists {
 			continue
 		}
-		oldKVs[v.Name] = v.Value
-	}
-	for i := range oldRefs {
-		// if it exists in the new env, we don't need to process in the old env
-		if _, exists := newKVs[oldRefs[i].Name]; exists {
-			continue
-		}
-		oldKVs[oldRefs[i].Name] = oldRefVars[i].Value
+		oldKVs[ev.Name] = ev.Value
 	}
 
 	todo := computeExportChanges(oldKVs, newKVs, lookupEnv)

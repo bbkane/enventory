@@ -265,27 +265,17 @@ func execRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) err
 	}
 
 	for _, envName := range envs {
-		envVars, err := es.VarList(ctx, envName)
+		exportables, err := es.EnvExportableList(ctx, envName)
 		if err != nil {
-
-			return fmt.Errorf("could not list env vars: %s: %w", envName, err)
+			return fmt.Errorf("could not list exportable env vars: %s: %w", envName, err)
 		}
-		for _, ev := range envVars {
-			vars = append(vars, kv{
-				Name:  ev.Name,
-				Value: ev.Value,
-			})
-		}
-
-		envRefs, envRefVars, err := es.VarRefList(ctx, envName)
-		if err != nil {
-			return fmt.Errorf("could not list env refs: %s: %w", envName, err)
-		}
-		for i := range envRefs {
-			vars = append(vars, kv{
-				Name:  envRefs[i].Name,
-				Value: envRefVars[i].Value,
-			})
+		for _, ev := range exportables {
+			if ev.Enabled {
+				vars = append(vars, kv{
+					Name:  ev.Name,
+					Value: ev.Value,
+				})
+			}
 		}
 	}
 

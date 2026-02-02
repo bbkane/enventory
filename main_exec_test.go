@@ -44,6 +44,7 @@ func TestExec(t *testing.T) {
 		CreateTime: time.Time{},
 		UpdateTime: time.Time{},
 		Value:      "value_from_enventory_env",
+		Enabled:    true,
 	})
 	require.NoError(err)
 
