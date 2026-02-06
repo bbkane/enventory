@@ -145,17 +145,22 @@ func TestShellZshChdir(t *testing.T) {
 			expectActionErr: false,
 		},
 		{
-			name:            "09_oldEnvShow",
+			name:            "09_newEnvCreateDisabledVar",
+			args:            new(testCmdBuilder).Strs("var", "create", "--name", "nv2_disabled", "--enabled", "false", "--value", "nv2_disabled_val", "--env", "new").Finish(dbName),
+			expectActionErr: false,
+		},
+		{
+			name:            "10_oldEnvShow",
 			args:            envShowTestCmd(dbName, "old"),
 			expectActionErr: false,
 		},
 		{
-			name:            "10_newEnvShow",
+			name:            "11_newEnvShow",
 			args:            envShowTestCmd(dbName, "new"),
 			expectActionErr: false,
 		},
 		{
-			name: "11_chdir",
+			name: "12_chdir",
 			args: new(testCmdBuilder).Strs("shell", "zsh", "chdir").
 				Strs("--old", "old", "--new", "new").Finish(dbName),
 			expectActionErr: false,

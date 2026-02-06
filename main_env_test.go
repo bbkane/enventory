@@ -143,9 +143,16 @@ func TestEnvListWithExpr(t *testing.T) {
 	ctx := context.Background()
 	service, err := app.NewEnvService(ctx, dbName)
 	require.NoError(err)
-	_, err = service.EnvCreate(ctx, models.EnvCreateArgs{Name: "firstenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+	_, err = service.EnvCreate(ctx,
+		models.EnvCreateArgs{
+			Name:       "firstenv",
+			Comment:    "",
+			CreateTime: time.Time{},
+			UpdateTime: time.Time{},
+			Enabled:    true,
+		})
 	require.NoError(err)
-	_, err = service.EnvCreate(ctx, models.EnvCreateArgs{Name: "secondenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+	_, err = service.EnvCreate(ctx, models.EnvCreateArgs{Name: "secondenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}, Enabled: true})
 	require.NoError(err)
 
 	query := "filter(Envs, .Name == 'firstenv')"
@@ -153,6 +160,6 @@ func TestEnvListWithExpr(t *testing.T) {
 		Expr: &query,
 	})
 	require.NoError(err)
-	epxectedEnvs := []models.Env{{Name: "firstenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}}}
+	epxectedEnvs := []models.Env{{Name: "firstenv", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}, Enabled: true}}
 	require.Equal(epxectedEnvs, actualEnvs)
 }

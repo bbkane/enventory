@@ -47,7 +47,10 @@ func emptyOrNil[T any](iFace interface{}) (T, error) {
 func datetime() contained.TypeInfo[time.Time] {
 	return contained.TypeInfo[time.Time]{
 		Description: "datetime in RFC3339 format",
-		FromIFace:   emptyOrNil[time.Time],
+		Equals: func(a, b time.Time) bool {
+			return a.Equal(b)
+		},
+		FromIFace: emptyOrNil[time.Time],
 		FromString: func(s string) (time.Time, error) {
 			return time.Parse(time.RFC3339, s)
 		},

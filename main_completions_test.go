@@ -34,6 +34,7 @@ func TestMainCompletions(t *testing.T) {
 		Comment:    makeComment(envName01),
 		CreateTime: time.Time{},
 		UpdateTime: time.Time{},
+		Enabled:    true,
 	})
 	require.NoError(t, err)
 
@@ -45,6 +46,7 @@ func TestMainCompletions(t *testing.T) {
 		Comment:    makeComment(varName01),
 		CreateTime: time.Time{},
 		UpdateTime: time.Time{},
+		Enabled:    true,
 	})
 	require.NoError(t, err)
 
@@ -57,6 +59,7 @@ func TestMainCompletions(t *testing.T) {
 		UpdateTime: time.Time{},
 		RefEnvName: envName01,
 		RefVarName: varName01,
+		Enabled:    true,
 	})
 	require.NoError(t, err)
 

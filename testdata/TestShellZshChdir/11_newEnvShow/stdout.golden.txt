@@ -1,0 +1,24 @@
+Env
+╭────────────┬────────────────╮
+│ Name       │ new            │
+│ CreateTime │ Mon 0001-01-01 │
+╰────────────┴────────────────╯
+Vars
+╭─────────┬───────────────────╮
+│ Name    │ nv1               │
+│ Value   │ nv1val            │
+├─────────┼───────────────────┤
+│ Name    │ nv2_disabled      │
+│ Value   │ nv2_disabled_val  │
+│ Enabled │ false             │
+├─────────┼───────────────────┤
+│ Name    │ ov1               │
+│ Value   │ ov1val-in-new-env │
+╰─────────┴───────────────────╯
+Refs
+╭─────────────┬────────╮
+│ Name        │ nr1    │
+│ RefEnvName  │ new    │
+│ RefVarName  │ nv1    │
+│ RefVarValue │ nv1val │
+╰─────────────┴────────╯

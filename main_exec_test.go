@@ -34,6 +34,7 @@ func TestExec(t *testing.T) {
 		Comment:    "",
 		CreateTime: time.Time{},
 		UpdateTime: time.Time{},
+		Enabled:    true,
 	})
 	require.NoError(err)
 

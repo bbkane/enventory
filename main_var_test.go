@@ -135,26 +135,26 @@ func TestEnvUniqueNames(t *testing.T) {
 	// shortcuts!
 
 	createEnv := func(ctx context.Context, name string) error {
-		_, err := service.EnvCreate(ctx, models.EnvCreateArgs{Name: name, Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+		_, err := service.EnvCreate(ctx, models.EnvCreateArgs{Name: name, Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}, Enabled: true})
 		return err
 	}
 
 	createVar := func(ctx context.Context, envName, name string) error {
-		_, err := service.VarCreate(ctx, models.VarCreateArgs{EnvName: envName, Name: name, Value: "val", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}})
+		_, err := service.VarCreate(ctx, models.VarCreateArgs{EnvName: envName, Name: name, Value: "val", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}, Enabled: true})
 		return err
 	}
 	updateVar := func(ctx context.Context, envName, name, newName string) error {
-		err := service.VarUpdate(ctx, envName, name, models.VarUpdateArgs{Comment: nil, CreateTime: nil, EnvName: nil, Name: &newName, UpdateTime: nil, Value: nil})
+		err := service.VarUpdate(ctx, envName, name, models.VarUpdateArgs{Comment: nil, CreateTime: nil, EnvName: nil, Name: &newName, UpdateTime: nil, Value: nil, Enabled: nil})
 		return err
 	}
 
 	createRef := func(ctx context.Context, envName, name, refEnvName, refVarName string) error {
-		_, err := service.VarRefCreate(ctx, models.VarRefCreateArgs{EnvName: envName, Name: name, Comment: "", RefEnvName: refEnvName, RefVarName: refVarName, CreateTime: time.Time{}, UpdateTime: time.Time{}})
+		_, err := service.VarRefCreate(ctx, models.VarRefCreateArgs{EnvName: envName, Name: name, Comment: "", RefEnvName: refEnvName, RefVarName: refVarName, CreateTime: time.Time{}, UpdateTime: time.Time{}, Enabled: true})
 		return err
 	}
 
 	updateRef := func(ctx context.Context, envName, name, newName string) error {
-		err := service.VarRefUpdate(ctx, envName, name, models.VarRefUpdateArgs{RefEnvName: nil, RefVarName: nil, Comment: nil, CreateTime: nil, EnvName: nil, Name: &newName, UpdateTime: nil})
+		err := service.VarRefUpdate(ctx, envName, name, models.VarRefUpdateArgs{RefEnvName: nil, RefVarName: nil, Comment: nil, CreateTime: nil, EnvName: nil, Name: &newName, UpdateTime: nil, Enabled: nil})
 		return err
 	}
 

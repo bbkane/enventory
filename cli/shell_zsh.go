@@ -221,13 +221,17 @@ func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCon
 		return fmt.Errorf("could not list old env exportables: %s: %w", oldEnvName, err)
 	}
 
+	// TODO: figure out how envs and exportables being disabled should be handled here
 	newKVs := make(map[string]string, len(newExportables))
 	oldKVs := make(map[string]string, len(oldExportables))
 	for _, ev := range newExportables {
-		newKVs[ev.Name] = ev.Value
+		if ev.Enabled {
+			newKVs[ev.Name] = ev.Value
+		}
 	}
 	for _, ev := range oldExportables {
 		// if it exists in the new env, we don't need to process in the old env
+		// Let's also not consider enabled here, as these are slated to be removed anyway. So we want to unset them even if they are disabled in the old env, as long as they don't exist in the new env.
 		if _, exists := newKVs[ev.Name]; exists {
 			continue
 		}
