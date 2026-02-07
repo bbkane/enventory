@@ -216,6 +216,16 @@ func shellZshChdirRun(ctx context.Context, es models.Service, cmdCtx warg.CmdCon
 	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
 		return fmt.Errorf("could not list new env exportables: %s: %w", newEnvName, err)
 	}
+	// we did successfully find an env - clear it out if its not enabled
+	if err == nil {
+		env, err := es.EnvShow(ctx, newEnvName)
+		if err != nil {
+			return fmt.Errorf("could not show new env: %s: %w", newEnvName, err)
+		}
+		if !env.Enabled {
+			newExportables = nil
+		}
+	}
 	oldExportables, err := es.EnvExportableList(ctx, oldEnvName)
 	if err != nil && !errors.Is(err, models.ErrEnvNotFound) {
 		return fmt.Errorf("could not list old env exportables: %s: %w", oldEnvName, err)
