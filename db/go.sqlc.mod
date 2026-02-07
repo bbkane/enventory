@@ -1,4 +1,4 @@
-module github.com/bbkane/enventory
+module github.com/bbkane/sqlc-tool
 
 go 1.24.4
 

@@ -10,7 +10,7 @@ import (
 
 	"github.com/expr-lang/expr"
 	"github.com/xhit/go-str2duration/v2"
-	"go.bbkane.com/enventory/app/sqliteconnect/sqlcgen"
+	"go.bbkane.com/enventory/db/sqlcgen"
 	"go.bbkane.com/enventory/models"
 )
 

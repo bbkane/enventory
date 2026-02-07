@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"go.bbkane.com/enventory/app/sqliteconnect"
+	db "go.bbkane.com/enventory/db"
 	"go.bbkane.com/enventory/models"
 )
 
@@ -14,7 +14,7 @@ type EnvService struct {
 }
 
 func NewEnvService(ctx context.Context, dsn string) (models.Service, error) {
-	dbtx, err := sqliteconnect.Connect(ctx, dsn)
+	dbtx, err := db.Connect(ctx, dsn)
 	if err != nil {
 		return nil, fmt.Errorf("could not init db: %w", err)
 	}

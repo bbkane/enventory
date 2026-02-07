@@ -1,4 +1,4 @@
-package sqliteconnect
+package db
 
 import (
 	"context"
@@ -20,25 +20,25 @@ import (
 var migrationFS embed.FS
 
 func Connect(ctx context.Context, dsn string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite", dsn)
+	sqlDB, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("db open error: %s: %w", dsn, err)
 	}
 
-	err = db.PingContext(ctx)
+	err = sqlDB.PingContext(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("db ping error: %w", err)
 	}
 
-	if _, err := db.ExecContext(ctx, `PRAGMA foreign_keys = ON;`); err != nil {
+	if _, err := sqlDB.ExecContext(ctx, `PRAGMA foreign_keys = ON;`); err != nil {
 		return nil, fmt.Errorf("foreign keys pragma: %w", err)
 	}
 
-	if err := migrate(ctx, db, migrationFS, "*/*.sql"); err != nil {
+	if err := migrate(ctx, sqlDB, migrationFS, "*/*.sql"); err != nil {
 		return nil, fmt.Errorf("migrate connect error: %w", err)
 	}
 
-	return db, nil
+	return sqlDB, nil
 }
 
 // migrate sets up migration tracking and executes pending migration files.
@@ -49,10 +49,10 @@ func Connect(ctx context.Context, dsn string) (*sql.DB, error) {
 // Once a migration is run, its name is stored in the 'migrations' table so it
 // is not re-executed. Migrations run in a transaction to prevent partial
 // migrations.
-func migrate(ctx context.Context, db *sql.DB, migrationFS fs.ReadFileFS, migrationsGlobPattern string) error {
+func migrate(ctx context.Context, sqlDB *sql.DB, migrationFS fs.ReadFileFS, migrationsGlobPattern string) error {
 
 	// Create or update the migration table. Wouldn't need this if I was starting from scratch :D
-	if err := withTx(ctx, db, migrateMigrationTable); err != nil {
+	if err := withTx(ctx, sqlDB, migrateMigrationTable); err != nil {
 		return fmt.Errorf("could not migrate migration table: %w", err)
 	}
 
@@ -70,7 +70,7 @@ func migrate(ctx context.Context, db *sql.DB, migrationFS fs.ReadFileFS, migrati
 
 	// Loop over all migration files and execute them in order.
 	for _, name := range names {
-		if err := migrateFile(ctx, db, migrationFS, name); err != nil {
+		if err := migrateFile(ctx, sqlDB, migrationFS, name); err != nil {
 			return fmt.Errorf("migration error: name=%q err=%w", name, err)
 		}
 	}
@@ -181,9 +181,9 @@ func migrateFile(ctx context.Context, db *sql.DB, migrationFS fs.ReadFileFS, nam
 }
 
 // withTx makes transactions easy!!
-func withTx(ctx context.Context, db *sql.DB, txFunc func(ctx context.Context, tx *sql.Tx) error) error {
+func withTx(ctx context.Context, sqlDB *sql.DB, txFunc func(ctx context.Context, tx *sql.Tx) error) error {
 
-	tx, err := db.BeginTx(ctx, nil)
+	tx, err := sqlDB.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("could not start transaction: %w", err)
 

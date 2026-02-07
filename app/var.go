@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"go.bbkane.com/enventory/app/sqliteconnect/sqlcgen"
+	"go.bbkane.com/enventory/db/sqlcgen"
 	"go.bbkane.com/enventory/models"
 )
 
