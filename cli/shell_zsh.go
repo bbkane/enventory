@@ -152,7 +152,15 @@ func shellZshExportUnexport(ctx context.Context, cmdCtx warg.CmdContext, es mode
 
 	kvs := make([]kv, 0, len(exportables))
 	for _, e := range exportables {
-		if e.Enabled {
+		// TODO: I don't like switching on the script type.
+		var include bool
+		switch scriptType {
+		case "export":
+			include = e.Enabled
+		case "unexport":
+			include = true
+		}
+		if include {
 			kvs = append(kvs, kv{
 				Name:  e.Name,
 				Value: e.Value,

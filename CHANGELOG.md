@@ -7,6 +7,10 @@ Note the the latest version is usually work in progress and may have not yet bee
 
 # v0.0.25
 
+## Added
+
+- Add `--enabled` for envs, vars, and refs. If `--enabled` is false, the env, var, or ref won't be exported when changing directories.
+
 ## Changed
 
 - in `shell zsh chdir`, change the order from (Removed, Unchanged, Changed, Added) to (Added, Changed, Removed, Unchanged). This prints the "most impactful" changes first for easier inspection.
