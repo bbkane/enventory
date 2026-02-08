@@ -5,7 +5,7 @@
 Centrally manage environment variables with SQLite
 
 - Automatically export/unexport environments when entering/leaving directories
-- Keep a global view of which variables apply to which projects (as well as date created/updated, optional comments). 
+- Keep a global view of which variables apply to which projects (as well as date created/updated, optional comments).
 - Filter environments to keep your view manageable:
 
 ```bash
@@ -82,23 +82,8 @@ Turns out there are a lot of options in this space! Here are some of my  favorit
 See [Go Project Notes](https://www.bbkane.com/blog/go-project-notes/) for notes
 on development tooling and CI/CD setup (including demo gif generation)
 
-## Generate [`./dbdoc`](./dbdoc) with [tbls](https://github.com/k1LoW/tbls)
+## Generate [`./db/dbdoc`](./db/dbdoc) with [tbls](https://github.com/k1LoW/tbls) and [`./sqlite/sqlite/sqlcgen`](./sqlite/sqlite/sqlcgen) with [sqlc](https://docs.sqlc.dev/en/latest/index.html#)
 
-Install:
-
-```bash
-brew install tbls
-```
-
-Run:
-
-```bash
-# get a fresh db
-go run . env list --db-path tmp.db
-tbls doc --rm-dist
-```
-
-## Generate [./sqlite/sqlite/sqlcgen](./sqlite/sqlite/sqlcgen)
 
 ```bash
 go generate ./...
