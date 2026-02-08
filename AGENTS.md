@@ -19,6 +19,8 @@ cp ~/.config/enventory.db  ~/.config/enventory.db.$(date +'%Y-%m-%d.%H.%M.%S').b
 
 If you need to to make a SQL change:
 
+Understand the current SQL structure by lookng at ./db/dbdoc/schema.json
+
 Add a SQL migrations if necessary in ./db/migrations
 
 Update SQL query if necessary in ./db/queries/
