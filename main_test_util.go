@@ -125,6 +125,10 @@ func (tcb *testCmdBuilder) Enabled(enabled bool) *testCmdBuilder {
 	return tcb.Strs("--enabled", enabledStr)
 }
 
+func (tcb *testCmdBuilder) Completions(completions string) *testCmdBuilder {
+	return tcb.Strs("--completions", completions)
+}
+
 type testcase struct {
 	name            string
 	args            []string

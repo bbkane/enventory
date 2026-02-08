@@ -19,13 +19,14 @@ func (e *EnvService) varFindByID(ctx context.Context, id int64) (*models.Var, er
 	}
 
 	return &models.Var{
-		EnvName:    sqlcVar.EnvName,
-		Name:       sqlcVar.Name,
-		Comment:    sqlcVar.Comment,
-		CreateTime: models.StringToTimeMust(sqlcVar.CreateTime),
-		UpdateTime: models.StringToTimeMust(sqlcVar.UpdateTime),
-		Value:      sqlcVar.Value,
-		Enabled:    models.Int64ToBool(sqlcVar.Enabled),
+		EnvName:     sqlcVar.EnvName,
+		Name:        sqlcVar.Name,
+		Comment:     sqlcVar.Comment,
+		CreateTime:  models.StringToTimeMust(sqlcVar.CreateTime),
+		UpdateTime:  models.StringToTimeMust(sqlcVar.UpdateTime),
+		Value:       sqlcVar.Value,
+		Enabled:     models.Int64ToBool(sqlcVar.Enabled),
+		Completions: models.JSONToStringSlice(sqlcVar.Completions),
 	}, nil
 }
 
@@ -58,26 +59,28 @@ func (e *EnvService) VarCreate(ctx context.Context, args models.VarCreateArgs) (
 	}
 
 	err = queries.VarCreate(ctx, sqlcgen.VarCreateParams{
-		EnvID:      envID,
-		Name:       args.Name,
-		Comment:    args.Comment,
-		CreateTime: models.TimeToString(args.CreateTime),
-		UpdateTime: models.TimeToString(args.UpdateTime),
-		Value:      args.Value,
-		Enabled:    models.BoolToInt64(args.Enabled),
+		EnvID:       envID,
+		Name:        args.Name,
+		Comment:     args.Comment,
+		CreateTime:  models.TimeToString(args.CreateTime),
+		UpdateTime:  models.TimeToString(args.UpdateTime),
+		Value:       args.Value,
+		Enabled:     models.BoolToInt64(args.Enabled),
+		Completions: models.StringSliceToJSON(args.Completions),
 	})
 
 	if err != nil {
 		return nil, fmt.Errorf("could not create env var: %w", err)
 	}
 	return &models.Var{
-		EnvName:    args.EnvName,
-		Name:       args.Name,
-		Comment:    args.Comment,
-		CreateTime: args.CreateTime,
-		UpdateTime: args.UpdateTime,
-		Value:      args.Value,
-		Enabled:    args.Enabled,
+		EnvName:     args.EnvName,
+		Name:        args.Name,
+		Comment:     args.Comment,
+		CreateTime:  args.CreateTime,
+		UpdateTime:  args.UpdateTime,
+		Value:       args.Value,
+		Enabled:     args.Enabled,
+		Completions: args.Completions,
 	}, nil
 }
 
@@ -117,13 +120,14 @@ func (e *EnvService) VarList(ctx context.Context, envName string) ([]models.Var,
 	var ret []models.Var
 	for _, sqlcEnv := range envs {
 		ret = append(ret, models.Var{
-			Name:       sqlcEnv.Name,
-			Comment:    sqlcEnv.Comment,
-			CreateTime: models.StringToTimeMust(sqlcEnv.CreateTime),
-			EnvName:    envName,
-			UpdateTime: models.StringToTimeMust(sqlcEnv.UpdateTime),
-			Value:      sqlcEnv.Value,
-			Enabled:    models.Int64ToBool(sqlcEnv.Enabled),
+			Name:        sqlcEnv.Name,
+			Comment:     sqlcEnv.Comment,
+			CreateTime:  models.StringToTimeMust(sqlcEnv.CreateTime),
+			EnvName:     envName,
+			UpdateTime:  models.StringToTimeMust(sqlcEnv.UpdateTime),
+			Value:       sqlcEnv.Value,
+			Enabled:     models.Int64ToBool(sqlcEnv.Enabled),
+			Completions: models.JSONToStringSlice(sqlcEnv.Completions),
 		})
 	}
 
@@ -166,13 +170,14 @@ func (e *EnvService) VarShow(ctx context.Context, envName string, name string) (
 	}
 
 	return &models.Var{
-		EnvName:    envName,
-		Name:       name,
-		Comment:    sqlEnvLocalVar.Comment,
-		CreateTime: models.StringToTimeMust(sqlEnvLocalVar.CreateTime),
-		UpdateTime: models.StringToTimeMust(sqlEnvLocalVar.UpdateTime),
-		Value:      sqlEnvLocalVar.Value,
-		Enabled:    models.Int64ToBool(sqlEnvLocalVar.Enabled),
+		EnvName:     envName,
+		Name:        name,
+		Comment:     sqlEnvLocalVar.Comment,
+		CreateTime:  models.StringToTimeMust(sqlEnvLocalVar.CreateTime),
+		UpdateTime:  models.StringToTimeMust(sqlEnvLocalVar.UpdateTime),
+		Value:       sqlEnvLocalVar.Value,
+		Enabled:     models.Int64ToBool(sqlEnvLocalVar.Enabled),
+		Completions: models.JSONToStringSlice(sqlEnvLocalVar.Completions),
 	}, envRefs, nil
 }
 
@@ -194,14 +199,15 @@ func (e *EnvService) VarUpdate(ctx context.Context, envName string, name string,
 	queries := sqlcgen.New(e.dbtx)
 
 	rowsAffected, err := queries.VarUpdate(ctx, sqlcgen.VarUpdateParams{
-		EnvID:      newEnvID,
-		Name:       args.Name,
-		Comment:    args.Comment,
-		CreateTime: models.TimePtrToStringPtr(args.CreateTime),
-		UpdateTime: models.TimePtrToStringPtr(args.UpdateTime),
-		Value:      args.Value,
-		Enabled:    models.BoolPtrToInt64Ptr(args.Enabled),
-		VarID:      envVarID,
+		EnvID:       newEnvID,
+		Name:        args.Name,
+		Comment:     args.Comment,
+		CreateTime:  models.TimePtrToStringPtr(args.CreateTime),
+		UpdateTime:  models.TimePtrToStringPtr(args.UpdateTime),
+		Value:       args.Value,
+		Enabled:     models.BoolPtrToInt64Ptr(args.Enabled),
+		Completions: models.StringSlicePtrToJSONPtr(args.Completions),
+		VarID:       envVarID,
 	})
 
 	if err != nil {

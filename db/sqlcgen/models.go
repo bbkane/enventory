@@ -14,14 +14,15 @@ type Env struct {
 }
 
 type Var struct {
-	VarID      int64
-	EnvID      int64
-	Name       string
-	Comment    string
-	CreateTime string
-	UpdateTime string
-	Value      string
-	Enabled    int64
+	VarID       int64
+	EnvID       int64
+	Name        string
+	Comment     string
+	CreateTime  string
+	UpdateTime  string
+	Value       string
+	Enabled     int64
+	Completions string
 }
 
 type VarRef struct {
@@ -53,14 +54,16 @@ type VwEnvVarVarRefUniqueName struct {
 }
 
 type VwVarExpanded struct {
-	VarID      int64
-	EnvID      int64
-	EnvName    string
-	Name       string
-	Value      string
-	Comment    string
-	CreateTime string
-	UpdateTime string
+	VarID       int64
+	EnvID       int64
+	EnvName     string
+	Name        string
+	Value       string
+	Comment     string
+	CreateTime  string
+	UpdateTime  string
+	Enabled     int64
+	Completions string
 }
 
 type VwVarRefExpanded struct {

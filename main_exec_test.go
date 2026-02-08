@@ -39,13 +39,14 @@ func TestExec(t *testing.T) {
 	require.NoError(err)
 
 	_, err = service.VarCreate(ctx, models.VarCreateArgs{
-		EnvName:    envName01,
-		Name:       "var_from_enventory_env",
-		Comment:    "",
-		CreateTime: time.Time{},
-		UpdateTime: time.Time{},
-		Value:      "value_from_enventory_env",
-		Enabled:    true,
+		EnvName:     envName01,
+		Name:        "var_from_enventory_env",
+		Comment:     "",
+		CreateTime:  time.Time{},
+		UpdateTime:  time.Time{},
+		Value:       "value_from_enventory_env",
+		Enabled:     true,
+		Completions: nil,
 	})
 	require.NoError(err)
 

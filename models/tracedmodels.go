@@ -229,6 +229,7 @@ func (t *TracedService) VarCreate(ctx context.Context, args VarCreateArgs) (*Var
 			attribute.String("args.CreateTime", TimeToString(args.CreateTime)),
 			attribute.String("args.UpdateTime", TimeToString(args.UpdateTime)),
 			attribute.Bool("args.Enabled", args.Enabled),
+			attribute.Int("args.Completions.Len", len(args.Completions)),
 		),
 	)
 	defer span.End()
@@ -284,6 +285,10 @@ func (t *TracedService) VarUpdate(ctx context.Context, envName string, name stri
 	if args.Value != nil {
 		argsValue = "<redacted>" // can be sensitive
 	}
+	argsCompletionsLen := "<nil>"
+	if args.Completions != nil {
+		argsCompletionsLen = fmt.Sprintf("%d", len(*args.Completions))
+	}
 	ctx, span := t.tracer.Start(
 		ctx,
 		"VarUpdate",
@@ -296,6 +301,7 @@ func (t *TracedService) VarUpdate(ctx context.Context, envName string, name stri
 			attribute.String("args.CreateTime", ptrToString(TimePtrToStringPtr(args.CreateTime))),
 			attribute.String("args.UpdateTime", ptrToString(TimePtrToStringPtr(args.UpdateTime))),
 			attribute.String("args.Enabled", ptrToString(args.Enabled)),
+			attribute.String("args.Completions.Len", argsCompletionsLen),
 		),
 	)
 	defer span.End()

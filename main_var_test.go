@@ -140,11 +140,28 @@ func TestEnvUniqueNames(t *testing.T) {
 	}
 
 	createVar := func(ctx context.Context, envName, name string) error {
-		_, err := service.VarCreate(ctx, models.VarCreateArgs{EnvName: envName, Name: name, Value: "val", Comment: "", CreateTime: time.Time{}, UpdateTime: time.Time{}, Enabled: true})
+		_, err := service.VarCreate(ctx, models.VarCreateArgs{
+			EnvName: envName,
+			Name:    name, Value: "val",
+			Comment:     "",
+			CreateTime:  time.Time{},
+			UpdateTime:  time.Time{},
+			Enabled:     true,
+			Completions: nil,
+		})
 		return err
 	}
 	updateVar := func(ctx context.Context, envName, name, newName string) error {
-		err := service.VarUpdate(ctx, envName, name, models.VarUpdateArgs{Comment: nil, CreateTime: nil, EnvName: nil, Name: &newName, UpdateTime: nil, Value: nil, Enabled: nil})
+		err := service.VarUpdate(ctx, envName, name, models.VarUpdateArgs{
+			Comment:     nil,
+			CreateTime:  nil,
+			EnvName:     nil,
+			Name:        &newName,
+			UpdateTime:  nil,
+			Value:       nil,
+			Enabled:     nil,
+			Completions: nil,
+		})
 		return err
 	}
 
@@ -316,6 +333,53 @@ func TestVarUpdate(t *testing.T) {
 		{
 			name:            "13_envShowE2",
 			args:            envShowTestCmd(dbName, e2),
+			expectActionErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			goldenTest(t, tt, updateGolden)
+		})
+	}
+}
+
+func TestVarCreateWithCompletions(t *testing.T) {
+	t.Parallel()
+	updateGolden := os.Getenv("ENVENTORY_TEST_UPDATE_GOLDEN") != ""
+
+	dbName := createTempDB(t)
+
+	tests := []testcase{
+		{
+			name:            "01_envCreate",
+			args:            envCreateTestCmd(dbName, envName01),
+			expectActionErr: false,
+		},
+		{
+			name: "02_varCreateWithCompletions",
+			args: new(testCmdBuilder).Strs("var", "create").
+				EnvName(envName01).Name(varName01).Strs("--value", "value").
+				Completions("foo,bar,baz").ZeroTimes().Finish(dbName),
+			expectActionErr: false,
+		},
+		{
+			name: "03_varShow",
+			args: new(testCmdBuilder).Strs("var", "show").
+				EnvName(envName01).Name(varName01).Tz().Mask(false).Finish(dbName),
+			expectActionErr: false,
+		},
+		{
+			name: "04_varUpdateCompletions",
+			args: new(testCmdBuilder).Strs("var", "update").
+				Confirm(false).EnvName(envName01).Name(varName01).
+				Completions("x,y").UpdateTime(oneTime).Finish(dbName),
+			expectActionErr: false,
+		},
+		{
+			name: "05_varShowAfterUpdate",
+			args: new(testCmdBuilder).Strs("var", "show").
+				EnvName(envName01).Name(varName01).Tz().Mask(false).Finish(dbName),
 			expectActionErr: false,
 		},
 	}

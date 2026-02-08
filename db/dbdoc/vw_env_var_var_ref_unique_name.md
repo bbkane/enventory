@@ -29,7 +29,7 @@ FROM env e JOIN var v ON e.env_id = v.env_id
 | ---- | ------- | ------- | ---- |
 | [env](env.md) | 6 |  | table |
 | [var_ref](var_ref.md) | 8 |  | table |
-| [var](var.md) | 8 |  | table |
+| [var](var.md) | 9 |  | table |
 
 ## Relations
 

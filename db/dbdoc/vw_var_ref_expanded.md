@@ -43,7 +43,7 @@ FROM var_ref
 | Name | Columns | Comment | Type |
 | ---- | ------- | ------- | ---- |
 | [env](env.md) | 6 |  | table |
-| [var](var.md) | 8 |  | table |
+| [var](var.md) | 9 |  | table |
 | [var_ref](var_ref.md) | 8 |  | table |
 
 ## Relations

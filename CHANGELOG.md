@@ -10,6 +10,7 @@ Note the the latest version is usually work in progress and may have not yet bee
 ## Added
 
 - Add `--enabled` for envs, vars, and refs. If `--enabled` is false, the env, var, or ref won't be exported when changing directories.
+- Add `--completions` for vars to easily toggle between known values
 
 ## Changed
 

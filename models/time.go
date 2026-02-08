@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // -- Utility function
 
@@ -59,4 +62,35 @@ func BoolPtrToInt64Ptr(b *bool) *int64 {
 	}
 	i := BoolToInt64(*b)
 	return &i
+}
+
+// StringSliceToJSON marshals a []string to a JSON string
+func StringSliceToJSON(s []string) string {
+	if s == nil {
+		s = []string{}
+	}
+	b, err := json.Marshal(s)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
+}
+
+// JSONToStringSlice unmarshals a JSON string to []string. Panics on error.
+func JSONToStringSlice(s string) []string {
+	var result []string
+	err := json.Unmarshal([]byte(s), &result)
+	if err != nil {
+		panic(err)
+	}
+	return result
+}
+
+// StringSlicePtrToJSONPtr converts *[]string to *string (JSON encoded)
+func StringSlicePtrToJSONPtr(s *[]string) *string {
+	if s == nil {
+		return nil
+	}
+	jsonStr := StringSliceToJSON(*s)
+	return &jsonStr
 }

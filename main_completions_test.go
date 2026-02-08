@@ -40,13 +40,14 @@ func TestMainCompletions(t *testing.T) {
 
 	// create a var
 	_, err = es.VarCreate(ctx, models.VarCreateArgs{
-		EnvName:    envName01,
-		Name:       varName01,
-		Value:      varValue01,
-		Comment:    makeComment(varName01),
-		CreateTime: time.Time{},
-		UpdateTime: time.Time{},
-		Enabled:    true,
+		EnvName:     envName01,
+		Name:        varName01,
+		Value:       varValue01,
+		Comment:     makeComment(varName01),
+		CreateTime:  time.Time{},
+		UpdateTime:  time.Time{},
+		Enabled:     true,
+		Completions: []string{"completion1", "completion2"},
 	})
 	require.NoError(t, err)
 
@@ -110,6 +111,24 @@ func TestMainCompletions(t *testing.T) {
 					{
 						Name:        envName01,
 						Description: makeComment(envName01),
+					},
+				},
+			},
+		},
+		{
+			name:        "envVarUpdateValue",
+			args:        []string{"var", "update", "--db-path", dbName, "--env", envName01, "--name", varName01, "--value"},
+			expectedErr: false,
+			expectedCandidates: &completion.Candidates{
+				Type: completion.Type_Values,
+				Values: []completion.Candidate{
+					{
+						Name:        "completion1",
+						Description: "",
+					},
+					{
+						Name:        "completion2",
+						Description: "",
 					},
 				},
 			},

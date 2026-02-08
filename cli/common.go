@@ -408,6 +408,36 @@ func ptrFromMap[T any](m map[string]any, key string) *T {
 	return nil
 }
 
+// parseCompletions parses a comma-separated completions string into a []string
+// Returns empty slice if key not present or empty string
+func parseCompletions(m map[string]any, key string) []string {
+	val, exists := m[key]
+	if !exists {
+		return []string{}
+	}
+	s := val.(string)
+	if s == "" {
+		return []string{}
+	}
+	return strings.Split(s, ",")
+}
+
+// parseCompletionsPtr parses a comma-separated completions string into *[]string
+// Returns nil if key not present
+func parseCompletionsPtr(m map[string]any, key string) *[]string {
+	val, exists := m[key]
+	if !exists {
+		return nil
+	}
+	s := val.(string)
+	if s == "" {
+		result := []string{}
+		return &result
+	}
+	result := strings.Split(s, ",")
+	return &result
+}
+
 type commonCreateArgs struct {
 	Comment    string
 	CreateTime time.Time

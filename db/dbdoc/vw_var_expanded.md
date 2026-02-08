@@ -15,7 +15,9 @@ SELECT
     value,
     comment,
     create_time,
-    update_time
+    update_time,
+    enabled,
+    completions
 FROM var
 ```
 
@@ -33,13 +35,15 @@ FROM var
 | comment | TEXT |  | true |  |  |  |
 | create_time | TEXT |  | true |  |  |  |
 | update_time | TEXT |  | true |  |  |  |
+| enabled | INTEGER |  | true |  |  |  |
+| completions | TEXT |  | true |  |  |  |
 
 ## Referenced Tables
 
 | Name | Columns | Comment | Type |
 | ---- | ------- | ------- | ---- |
 | [env](env.md) | 6 |  | table |
-| [var](var.md) | 8 |  | table |
+| [var](var.md) | 9 |  | table |
 
 ## Relations
 

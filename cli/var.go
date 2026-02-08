@@ -9,6 +9,7 @@ import (
 	"go.bbkane.com/enventory/cli/tableprint"
 	"go.bbkane.com/enventory/models"
 	"go.bbkane.com/warg"
+	"go.bbkane.com/warg/completion"
 	"go.bbkane.com/warg/value/scalar"
 )
 
@@ -34,6 +35,11 @@ func VarCreateCmd() warg.Cmd {
 			"New env var value",
 			scalar.String(),
 		),
+		warg.NewCmdFlag(
+			"--completions",
+			"Comma-separated list of tab completions for this var's value to easily toggle between known values.",
+			scalar.String(),
+		),
 	)
 }
 
@@ -56,17 +62,20 @@ func varCreateRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext
 
 	name := mustGetNameArg(cmdCtx.Flags)
 
+	completions := parseCompletions(cmdCtx.Flags, "--completions")
+
 	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		_, err := es.VarCreate(
 			ctx,
 			models.VarCreateArgs{
-				EnvName:    envName,
-				Name:       name,
-				Comment:    commonCreateArgs.Comment,
-				CreateTime: commonCreateArgs.CreateTime,
-				UpdateTime: commonCreateArgs.UpdateTime,
-				Value:      value,
-				Enabled:    commonCreateArgs.Enabled,
+				EnvName:     envName,
+				Name:        name,
+				Comment:     commonCreateArgs.Comment,
+				CreateTime:  commonCreateArgs.CreateTime,
+				UpdateTime:  commonCreateArgs.UpdateTime,
+				Value:       value,
+				Enabled:     commonCreateArgs.Enabled,
+				Completions: completions,
 			},
 		)
 		if err != nil {
@@ -168,6 +177,38 @@ func varShowRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext) 
 	return nil
 }
 
+// completeExistingVarCompletions returns the current completions for a var
+// as completion candidates for the --completions flag
+func completeExistingVarCompletions(
+	ctx context.Context, es models.Service, cmdCtx warg.CmdContext) (*completion.Candidates, error) {
+	// no completions if we can't get the env name or var name
+	envNamePtr := ptrFromMap[string](cmdCtx.Flags, "--env")
+	if envNamePtr == nil {
+		return nil, nil
+	}
+	varNamePtr := ptrFromMap[string](cmdCtx.Flags, "--name")
+	if varNamePtr == nil {
+		return nil, nil
+	}
+
+	envVar, _, err := es.VarShow(ctx, *envNamePtr, *varNamePtr)
+	if err != nil {
+		return nil, nil // var doesn't exist yet, no completions to offer
+	}
+
+	candidates := &completion.Candidates{
+		Type:   completion.Type_Values,
+		Values: nil,
+	}
+	for _, c := range envVar.Completions {
+		candidates.Values = append(candidates.Values, completion.Candidate{
+			Name:        c,
+			Description: "",
+		})
+	}
+	return candidates, nil
+}
+
 func VarUpdateCmd() warg.Cmd {
 	return warg.NewCmd(
 		"Update and env var",
@@ -189,6 +230,13 @@ func VarUpdateCmd() warg.Cmd {
 			"--value",
 			"New value for this env var",
 			scalar.String(),
+			warg.FlagCompletions(withEnvServiceCompletions(
+				completeExistingVarCompletions)),
+		),
+		warg.NewCmdFlag(
+			"--completions",
+			"Comma-separated list of completions for this var",
+			scalar.String(),
 		),
 	)
 }
@@ -201,16 +249,18 @@ func varUpdateRun(ctx context.Context, es models.Service, cmdCtx warg.CmdContext
 	name := mustGetNameArg(cmdCtx.Flags)
 	newEnvName := ptrFromMap[string](cmdCtx.Flags, "--new-env")
 	value := ptrFromMap[string](cmdCtx.Flags, "--value")
+	completions := parseCompletionsPtr(cmdCtx.Flags, "--completions")
 
 	err := es.WithTx(ctx, func(ctx context.Context, es models.Service) error {
 		err := es.VarUpdate(ctx, envName, name, models.VarUpdateArgs{
-			Comment:    commonUpdateArgs.Comment,
-			CreateTime: commonUpdateArgs.CreateTime,
-			EnvName:    newEnvName,
-			Name:       commonUpdateArgs.NewName,
-			UpdateTime: commonUpdateArgs.UpdateTime,
-			Value:      value,
-			Enabled:    commonUpdateArgs.Enabled,
+			Comment:     commonUpdateArgs.Comment,
+			CreateTime:  commonUpdateArgs.CreateTime,
+			EnvName:     newEnvName,
+			Name:        commonUpdateArgs.NewName,
+			UpdateTime:  commonUpdateArgs.UpdateTime,
+			Value:       value,
+			Enabled:     commonUpdateArgs.Enabled,
+			Completions: completions,
 		})
 		if err != nil {
 			return fmt.Errorf("could not update env var: %w", err)

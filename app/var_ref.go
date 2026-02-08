@@ -137,13 +137,14 @@ func (e *EnvService) VarRefShow(ctx context.Context, envName string, name string
 			RevVarName: sqlcVar.Name,
 			Enabled:    models.Int64ToBool(sqlcRef.Enabled),
 		}, &models.Var{
-			EnvName:    sqlcVar.EnvName,
-			Name:       sqlcVar.Name,
-			Comment:    sqlcVar.Comment,
-			CreateTime: sqlcVar.CreateTime,
-			UpdateTime: sqlcVar.UpdateTime,
-			Value:      sqlcVar.Value,
-			Enabled:    sqlcVar.Enabled,
+			EnvName:     sqlcVar.EnvName,
+			Name:        sqlcVar.Name,
+			Comment:     sqlcVar.Comment,
+			CreateTime:  sqlcVar.CreateTime,
+			UpdateTime:  sqlcVar.UpdateTime,
+			Value:       sqlcVar.Value,
+			Enabled:     sqlcVar.Enabled,
+			Completions: sqlcVar.Completions,
 		}, nil
 }
 

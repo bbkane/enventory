@@ -11,20 +11,21 @@ import (
 
 const varCreate = `-- name: VarCreate :exec
 INSERT INTO var(
-    env_id, name, comment, create_time, update_time, value, enabled
+    env_id, name, comment, create_time, update_time, value, enabled, completions
 ) VALUES (
-    ?     , ?   , ?      , ?          , ?          , ?    , ?
+    ?     , ?   , ?      , ?          , ?          , ?    , ?      , ?
 )
 `
 
 type VarCreateParams struct {
-	EnvID      int64
-	Name       string
-	Comment    string
-	CreateTime string
-	UpdateTime string
-	Value      string
-	Enabled    int64
+	EnvID       int64
+	Name        string
+	Comment     string
+	CreateTime  string
+	UpdateTime  string
+	Value       string
+	Enabled     int64
+	Completions string
 }
 
 func (q *Queries) VarCreate(ctx context.Context, arg VarCreateParams) error {
@@ -36,6 +37,7 @@ func (q *Queries) VarCreate(ctx context.Context, arg VarCreateParams) error {
 		arg.UpdateTime,
 		arg.Value,
 		arg.Enabled,
+		arg.Completions,
 	)
 	return err
 }
@@ -58,22 +60,23 @@ func (q *Queries) VarDelete(ctx context.Context, arg VarDeleteParams) (int64, er
 }
 
 const varFindByID = `-- name: VarFindByID :one
-SELECT env.name AS env_name, var.var_id, var.env_id, var.name, var.comment, var.create_time, var.update_time, var.value, var.enabled
+SELECT env.name AS env_name, var.var_id, var.env_id, var.name, var.comment, var.create_time, var.update_time, var.value, var.enabled, var.completions
 FROM var
 JOIN env ON var.env_id = env.env_id
 WHERE var.var_id = ?
 `
 
 type VarFindByIDRow struct {
-	EnvName    string
-	VarID      int64
-	EnvID      int64
-	Name       string
-	Comment    string
-	CreateTime string
-	UpdateTime string
-	Value      string
-	Enabled    int64
+	EnvName     string
+	VarID       int64
+	EnvID       int64
+	Name        string
+	Comment     string
+	CreateTime  string
+	UpdateTime  string
+	Value       string
+	Enabled     int64
+	Completions string
 }
 
 func (q *Queries) VarFindByID(ctx context.Context, varID int64) (VarFindByIDRow, error) {
@@ -89,6 +92,7 @@ func (q *Queries) VarFindByID(ctx context.Context, varID int64) (VarFindByIDRow,
 		&i.UpdateTime,
 		&i.Value,
 		&i.Enabled,
+		&i.Completions,
 	)
 	return i, err
 }
@@ -110,7 +114,7 @@ func (q *Queries) VarFindID(ctx context.Context, arg VarFindIDParams) (int64, er
 }
 
 const varList = `-- name: VarList :many
-SELECT var_id, env_id, name, comment, create_time, update_time, value, enabled FROM var
+SELECT var_id, env_id, name, comment, create_time, update_time, value, enabled, completions FROM var
 WHERE env_id = ?
 ORDER BY name ASC
 `
@@ -133,6 +137,7 @@ func (q *Queries) VarList(ctx context.Context, envID int64) ([]Var, error) {
 			&i.UpdateTime,
 			&i.Value,
 			&i.Enabled,
+			&i.Completions,
 		); err != nil {
 			return nil, err
 		}
@@ -148,7 +153,7 @@ func (q *Queries) VarList(ctx context.Context, envID int64) ([]Var, error) {
 }
 
 const varShow = `-- name: VarShow :one
-SELECT var_id, env_id, name, comment, create_time, update_time, value, enabled
+SELECT var_id, env_id, name, comment, create_time, update_time, value, enabled, completions
 FROM var
 WHERE env_id = ? AND name = ?
 `
@@ -170,6 +175,7 @@ func (q *Queries) VarShow(ctx context.Context, arg VarShowParams) (Var, error) {
 		&i.UpdateTime,
 		&i.Value,
 		&i.Enabled,
+		&i.Completions,
 	)
 	return i, err
 }
@@ -182,19 +188,21 @@ UPDATE var SET
     create_time = COALESCE(?4, create_time),
     update_time = COALESCE(?5, update_time),
     value = COALESCE(?6, value),
-    enabled = COALESCE(?7, enabled)
-WHERE var_id = ?8
+    enabled = COALESCE(?7, enabled),
+    completions = COALESCE(?8, completions)
+WHERE var_id = ?9
 `
 
 type VarUpdateParams struct {
-	EnvID      *int64
-	Name       *string
-	Comment    *string
-	CreateTime *string
-	UpdateTime *string
-	Value      *string
-	Enabled    *int64
-	VarID      int64
+	EnvID       *int64
+	Name        *string
+	Comment     *string
+	CreateTime  *string
+	UpdateTime  *string
+	Value       *string
+	Enabled     *int64
+	Completions *string
+	VarID       int64
 }
 
 func (q *Queries) VarUpdate(ctx context.Context, arg VarUpdateParams) (int64, error) {
@@ -206,6 +214,7 @@ func (q *Queries) VarUpdate(ctx context.Context, arg VarUpdateParams) (int64, er
 		arg.UpdateTime,
 		arg.Value,
 		arg.Enabled,
+		arg.Completions,
 		arg.VarID,
 	)
 	if err != nil {

@@ -2,6 +2,7 @@ package tableprint
 
 import (
 	"fmt"
+	"strings"
 
 	"go.bbkane.com/enventory/models"
 )
@@ -21,6 +22,7 @@ func VarShowPrint(c CommonTablePrintArgs, envVar models.Var, envRefs []models.Va
 			newRow("CreateTime", createTime),
 			newRow("UpdateTime", updateTime, skipRowIf(envVar.CreateTime.Equal(envVar.UpdateTime))),
 			newRow("Enabled", fmt.Sprintf("%t", envVar.Enabled), skipRowIf(envVar.Enabled)),
+			newRow("Completions", strings.Join(envVar.Completions, ","), skipRowIf(len(envVar.Completions) == 0)),
 		)
 		t.Render()
 

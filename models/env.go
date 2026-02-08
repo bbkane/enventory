@@ -44,33 +44,36 @@ type EnvUpdateArgs struct {
 var ErrVarNotFound = errors.New("local var not found")
 
 type Var struct {
-	EnvName    string
-	Name       string
-	Comment    string
-	CreateTime time.Time
-	UpdateTime time.Time
-	Value      string
-	Enabled    bool
+	EnvName     string
+	Name        string
+	Comment     string
+	CreateTime  time.Time
+	UpdateTime  time.Time
+	Value       string
+	Enabled     bool
+	Completions []string
 }
 
 type VarCreateArgs struct {
-	EnvName    string
-	Name       string
-	Comment    string
-	CreateTime time.Time
-	UpdateTime time.Time
-	Value      string
-	Enabled    bool
+	EnvName     string
+	Name        string
+	Comment     string
+	CreateTime  time.Time
+	UpdateTime  time.Time
+	Value       string
+	Enabled     bool
+	Completions []string
 }
 
 type VarUpdateArgs struct {
-	Comment    *string
-	CreateTime *time.Time
-	EnvName    *string
-	Name       *string
-	UpdateTime *time.Time
-	Value      *string
-	Enabled    *bool
+	Comment     *string
+	CreateTime  *time.Time
+	EnvName     *string
+	Name        *string
+	UpdateTime  *time.Time
+	Value       *string
+	Enabled     *bool
+	Completions *[]string
 }
 
 // -- VarRef

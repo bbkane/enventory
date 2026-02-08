@@ -13,7 +13,7 @@ CREATE TABLE "var" (
     comment TEXT NOT NULL,
     create_time TEXT NOT NULL,
     update_time TEXT NOT NULL,
-    value TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1,
+    value TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1, completions TEXT NOT NULL DEFAULT '[]',
     FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE,
     UNIQUE(env_id, name)
 ) STRICT
@@ -33,6 +33,7 @@ CREATE TABLE "var" (
 | update_time | TEXT |  | false |  |  |  |
 | value | TEXT |  | false |  |  |  |
 | enabled | INTEGER | 1 | false |  |  |  |
+| completions | TEXT | '[]' | false |  |  |  |
 
 ## Constraints
 
