@@ -17,20 +17,22 @@ Back up current DB
 cp ~/.config/enventory.db  ~/.config/enventory.db.$(date +'%Y-%m-%d.%H.%M.%S').bak"
 ```
 
-Update ./cli/ to the new thing (new flag, new command, etc.)
+If you need to to make a SQL change:
 
-Update output functons
+Add a SQL migrations if necessary in ./db/migrations
+
+Update SQL query if necessary in ./db/queries/
+
+Generate Go code to call the SQL query: `go generate ./...`
 
 Update models.Service interface with a new arg or new method
 
 Update models.TracedService implementation to emit trace information for the new thing
 
-Add a SQL migrations if necessary in ./app/sqliteconnect/migrations/
-
-Update SQL query if necessary in ./app/sqliteconnect/queries/
-
-Generate Go code to call the SQL query: `go generate ./...`
-
 Update app.Service implementation to call the SQL Go code inside a transaction (`WithTx`).
+
+Update ./cli/ to the new thing (new flag, new command, etc.)
+
+Update output functons
 
 Add a snapshot test (see other tests for examples) and run it
