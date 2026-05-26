@@ -16,6 +16,8 @@ enventory env list --expr 'filter(Envs, hasPrefix(.Name, "test") and .UpdateTime
 - Advanced tab completion! Autocomplete commands, flags, env names, var/ref names
 - Currently only supports `zsh`
 
+I also wrote a technical retrospective at [Enventory Retrospective | Ben's Corner](https://www.bbkane.com/blog/enventory-retrospective/).
+
 # Project Status
 
 I'm using `enventory` personally and I quite enjoy using it! That said, I work
