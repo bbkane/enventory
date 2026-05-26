@@ -18,7 +18,7 @@ brews:
     homepage: https://github.com/bbkane/enventory
     install: |
       bin.install "enventory"
-      generate_completions_from_executable(bin/"enventory", "completion", shells: [:zsh])
+      generate_completions_from_executable(bin/"enventory", "completion", shells: [:bash, :fish, :zsh])
     repository:
       name: homebrew-tap
       owner: bbkane
