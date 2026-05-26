@@ -181,8 +181,8 @@ func TestShellZshChdir(t *testing.T) {
 					App:             buildApp(),
 					UpdateGolden:    updateGolden,
 					ExpectActionErr: tt.expectActionErr,
+					Args:            tt.args,
 				},
-				warg.ParseWithArgs(tt.args),
 				warg.ParseWithLookupEnv(warg.LookupMap(nil)),
 				warg.ParseWithMetadata(md),
 			)

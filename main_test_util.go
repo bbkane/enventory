@@ -69,7 +69,7 @@ func (tcb *testCmdBuilder) Strs(args ...string) *testCmdBuilder {
 }
 
 func (tcb *testCmdBuilder) Finish(dbPath string) []string {
-	return slices.Concat([]string{"enventory"}, tcb.cmd, []string{"--db-path", dbPath})
+	return slices.Concat(tcb.cmd, []string{"--db-path", dbPath})
 }
 
 func (tcb *testCmdBuilder) Name(name string) *testCmdBuilder {
@@ -142,8 +142,8 @@ func goldenTest(t *testing.T, tt testcase, updateGolden bool) {
 			App:             buildApp(),
 			UpdateGolden:    updateGolden,
 			ExpectActionErr: tt.expectActionErr,
+			Args:            tt.args,
 		},
-		warg.ParseWithArgs(tt.args),
 		warg.ParseWithLookupEnv(warg.LookupMap(nil)),
 	)
 }

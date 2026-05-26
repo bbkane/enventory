@@ -54,7 +54,7 @@ func TestExec(t *testing.T) {
 
 	// can't use testCmdBuilder because its Finish method appends --db-path after the --
 	args := []string{
-		"enventory", "exec",
+		"exec",
 		"--db-path", dbName,
 		"--env", envName01,
 		"--group", "mygroup",
