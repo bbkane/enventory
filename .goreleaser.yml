@@ -43,8 +43,7 @@ homebrew_casks:
         - completion
       executable: enventory
       shells:
-        - bash
-        - fish
+        # bash/fish aren't available - I disabled auto completions in favor of custom completions for zsh
         - zsh
     homepage: https://github.com/bbkane/enventory
     hooks:
