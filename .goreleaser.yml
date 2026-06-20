@@ -6,31 +6,13 @@ before:
     - go mod download
     # you may remove this if you don't need go generate
     # - go generate ./...
-# https://goreleaser.com/customization/homebrew/
-brews:
-  - caveats: |
-      Unfortunately, Apple wants to charge developers $100/year to distribute
-      their apps without a big scary "... the developer cannot be verified"
-      warning. I'm not willing to pay that to give away free apps.
-      See https://www.macworld.com/article/3140183/how-to-install-an-app-in-macos-sierra-thats-not-signed-by-a-developer.html to work around that
-    description: Centrally manage environment variables
-    directory: Formula
-    homepage: https://github.com/bbkane/enventory
-    install: |
-      bin.install "enventory"
-      generate_completions_from_executable(bin/"enventory", "completion", shells: [:bash, :fish, :zsh])
-    repository:
-      name: homebrew-tap
-      owner: bbkane
-      # Optionally a token can be provided, if it differs from the token provided to GoReleaser
-      token: '{{ .Env.KEY_GITHUB_GORELEASER_TO_HOMEBREW_TAP }}'
 builds:
   - env:
       - CGO_ENABLED=0
     goarch:
       - amd64
       # - arm
-      # - arm64
+      - arm64
       # - i386  # does anyone care about i386?
     goos:
       - linux
@@ -46,6 +28,34 @@ changelog:
   sort: asc
 checksum:
   name_template: checksums.txt
+# https://goreleaser.com/customization/publish/homebrew_casks/
+homebrew_casks:
+  - binaries:
+      - enventory
+    caveats: |
+      Unfortunately, Apple wants to charge developers $100/year to distribute
+      their apps without a big scary "... the developer cannot be verified"
+      warning. I'm not willing to pay that to give away free apps.
+      See https://www.macworld.com/article/3140183/how-to-install-an-app-in-macos-sierra-thats-not-signed-by-a-developer.html to work around that
+    description: Centrally manage environment variables
+    generate_completions_from_executable:
+      args:
+        - completion
+      executable: enventory
+      shells:
+        - bash
+        - fish
+        - zsh
+    homepage: https://github.com/bbkane/enventory
+    hooks:
+      post:
+        install: |
+          system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/enventory"] if OS.mac?
+    repository:
+      name: homebrew-tap
+      owner: bbkane
+      # Optionally a token can be provided, if it differs from the token provided to GoReleaser
+      token: '{{ .Env.KEY_GITHUB_GORELEASER_TO_HOMEBREW_TAP }}'
 scoops:
   - description: Centrally manage environment variables
     homepage: https://github.com/bbkane/enventory

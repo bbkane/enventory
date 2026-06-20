@@ -32,7 +32,7 @@ sensitive API keys in a password safe (I really like
 
 # Install
 
-- [Homebrew](https://brew.sh/): `brew install bbkane/tap/enventory`
+- [Homebrew](https://brew.sh/): `brew install --cask bbkane/tap/enventory`
 - [Scoop](https://scoop.sh/):
 
 ```

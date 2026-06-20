@@ -9,7 +9,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	go.bbkane.com/motel v0.0.2
-	go.bbkane.com/warg v0.40.2
+	go.bbkane.com/warg v0.40.3
 	go.opentelemetry.io/otel v1.44.0
 	go.opentelemetry.io/otel/trace v1.44.0
 	golang.org/x/term v0.44.0
@@ -31,7 +31,7 @@ require (
 	github.com/mattn/go-shellwords v1.0.13 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/reeflective/readline v1.1.4 // indirect
+	github.com/reeflective/readline v1.2.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	go.bbkane.com/gocolor v0.0.7 // indirect
