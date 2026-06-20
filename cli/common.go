@@ -14,10 +14,15 @@ import (
 	"go.bbkane.com/warg"
 	"go.bbkane.com/warg/completion"
 	"go.bbkane.com/warg/path"
-	"go.bbkane.com/warg/value/contained"
 	"go.bbkane.com/warg/value/scalar"
 	"go.opentelemetry.io/otel"
 	"golang.org/x/term"
+)
+
+const (
+	flagGroupDisplay  = "Display"
+	flagGroupMetadata = "Metadata"
+	flagGroupRuntime  = "Runtime"
 )
 
 //nolint:gochecknoglobals // cwd will not change
@@ -32,31 +37,6 @@ func init() { //nolint:gochecknoinits  // cwd will not change
 	if err != nil {
 		// I don't know when this could happen?
 		panic(err)
-	}
-}
-
-func emptyOrNil[T any](iFace interface{}) (T, error) {
-	under, ok := iFace.(T)
-	if !ok {
-		return under, contained.ErrIncompatibleInterface
-	}
-	return under, nil
-}
-
-// datetime is a type for the CLI so I can pass strings in and parse them to dates
-func datetime() contained.TypeInfo[time.Time] {
-	return contained.TypeInfo[time.Time]{
-		Description: "datetime in RFC3339 format",
-		Equals: func(a, b time.Time) bool {
-			return a.Equal(b)
-		},
-		FromIFace: emptyOrNil[time.Time],
-		FromString: func(s string) (time.Time, error) {
-			return time.Parse(time.RFC3339, s)
-		},
-		FromZero: func() time.Time {
-			return time.Time{}
-		},
 	}
 }
 
@@ -79,6 +59,7 @@ func maskFlag() warg.FlagMap {
 			scalar.Bool(
 				scalar.Default(true),
 			),
+			warg.FlagGroup(flagGroupDisplay),
 			warg.EnvVars("ENVELOPE_MASK"),
 			warg.Required(),
 		),
@@ -93,6 +74,7 @@ func formatFlag() warg.FlagMap {
 				scalar.Choices("table", "value-only"),
 				scalar.Default("table"),
 			),
+			warg.FlagGroup(flagGroupDisplay),
 			warg.Required(),
 		),
 	}
@@ -115,6 +97,7 @@ func widthFlag() warg.FlagMap {
 			scalar.Int(
 				scalar.Default(width),
 			),
+			warg.FlagGroup(flagGroupDisplay),
 			warg.Required(),
 		),
 	}
@@ -254,6 +237,7 @@ func sqliteDSNFlagMap() warg.FlagMap {
 			scalar.Path(
 				scalar.Default(path.New("~/.config/enventory.db")),
 			),
+			warg.FlagGroup(flagGroupRuntime),
 			warg.Required(),
 			warg.EnvVars("ENVELOPE_DB_PATH"),
 		),
@@ -269,24 +253,25 @@ func commonCreateFlagMapPtrs(comment *string, createTime *time.Time, updateTime 
 				scalar.Default(""),
 				scalar.PointerTo(comment),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 		"--create-time": warg.NewFlag(
 			"Create time",
-			scalar.New(
-				datetime(),
+			scalar.DateTimeRFC3339(
 				scalar.Default(now),
 				scalar.PointerTo(createTime),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 		"--update-time": warg.NewFlag(
 			"Update time",
-			scalar.New(
-				datetime(),
+			scalar.DateTimeRFC3339(
 				scalar.Default(now),
 				scalar.PointerTo(updateTime),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 		"--enabled": warg.NewFlag(
@@ -294,6 +279,7 @@ func commonCreateFlagMapPtrs(comment *string, createTime *time.Time, updateTime 
 			scalar.Bool(
 				scalar.Default(true),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 	}
@@ -308,22 +294,23 @@ func commonCreateFlagMap() warg.FlagMap {
 			scalar.String(
 				scalar.Default(""),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 		"--create-time": warg.NewFlag(
 			"Create time",
-			scalar.New(
-				datetime(),
+			scalar.DateTimeRFC3339(
 				scalar.Default(now),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 		"--update-time": warg.NewFlag(
 			"Update time",
-			scalar.New(
-				datetime(),
+			scalar.DateTimeRFC3339(
 				scalar.Default(now),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 		"--enabled": warg.NewFlag(
@@ -331,6 +318,7 @@ func commonCreateFlagMap() warg.FlagMap {
 			scalar.Bool(
 				scalar.Default(true),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.Required(),
 		),
 	}
@@ -343,12 +331,12 @@ func commonUpdateFlags() warg.FlagMap {
 		"--comment": warg.NewFlag(
 			"Comment",
 			scalar.String(),
+			warg.FlagGroup(flagGroupMetadata),
 		),
 		"--create-time": warg.NewFlag(
 			"Create time",
-			scalar.New(
-				datetime(),
-			),
+			scalar.DateTimeRFC3339(),
+			warg.FlagGroup(flagGroupMetadata),
 		),
 		"--new-name": warg.NewFlag(
 			"New name",
@@ -356,15 +344,16 @@ func commonUpdateFlags() warg.FlagMap {
 		),
 		"--update-time": warg.NewFlag(
 			"Update time",
-			scalar.New(
-				datetime(),
+			scalar.DateTimeRFC3339(
 				scalar.Default(time.Now()),
 			),
+			warg.FlagGroup(flagGroupMetadata),
 			warg.UnsetSentinel("UNSET"),
 		),
 		"--enabled": warg.NewFlag(
 			"Whether this item is enabled",
 			scalar.Bool(),
+			warg.FlagGroup(flagGroupMetadata),
 		),
 	}
 	return commonUpdateFlags
@@ -377,6 +366,7 @@ func timeoutFlagMap() warg.FlagMap {
 			scalar.Duration(
 				scalar.Default(10*time.Minute),
 			),
+			warg.FlagGroup(flagGroupRuntime),
 			warg.Required(),
 		),
 	}
@@ -392,6 +382,7 @@ func timeZoneFlagMap() warg.FlagMap {
 				scalar.Default("local"),
 				scalar.Choices("local", "utc"),
 			),
+			warg.FlagGroup(flagGroupDisplay),
 			warg.Required(),
 		),
 	}

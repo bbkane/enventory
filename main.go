@@ -59,10 +59,6 @@ func buildApp() *warg.App {
 			),
 			warg.SubCmd("exec", cli.ExecCmd()),
 		),
-		warg.HelpFlag(
-			warg.DefaultHelpCmdMap(),
-			warg.DefaultHelpFlagMap("detailed", warg.DefaultHelpCmdMap().SortedNames()),
-		),
 		warg.SkipCompletionCmds(),
 	)
 	return &app
