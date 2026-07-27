@@ -616,6 +616,6 @@
   ],
   "driver": {
     "name": "sqlite",
-    "database_version": "3.51.1"
+    "database_version": "3.53.2"
   }
 }
