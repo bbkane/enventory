@@ -128,24 +128,24 @@ func (e *EnvService) VarRefShow(ctx context.Context, envName string, name string
 	}
 
 	return &models.VarRef{
-			EnvName:    envName,
-			Name:       sqlcRef.Name,
-			Comment:    sqlcRef.Comment,
-			CreateTime: models.StringToTimeMust(sqlcRef.CreateTime),
-			UpdateTime: models.StringToTimeMust(sqlcRef.UpdateTime),
-			RefEnvName: sqlcVar.EnvName,
-			RevVarName: sqlcVar.Name,
-			Enabled:    models.Int64ToBool(sqlcRef.Enabled),
-		}, &models.Var{
-			EnvName:     sqlcVar.EnvName,
-			Name:        sqlcVar.Name,
-			Comment:     sqlcVar.Comment,
-			CreateTime:  sqlcVar.CreateTime,
-			UpdateTime:  sqlcVar.UpdateTime,
-			Value:       sqlcVar.Value,
-			Enabled:     sqlcVar.Enabled,
-			Completions: sqlcVar.Completions,
-		}, nil
+		EnvName:    envName,
+		Name:       sqlcRef.Name,
+		Comment:    sqlcRef.Comment,
+		CreateTime: models.StringToTimeMust(sqlcRef.CreateTime),
+		UpdateTime: models.StringToTimeMust(sqlcRef.UpdateTime),
+		RefEnvName: sqlcVar.EnvName,
+		RevVarName: sqlcVar.Name,
+		Enabled:    models.Int64ToBool(sqlcRef.Enabled),
+	}, &models.Var{
+		EnvName:     sqlcVar.EnvName,
+		Name:        sqlcVar.Name,
+		Comment:     sqlcVar.Comment,
+		CreateTime:  sqlcVar.CreateTime,
+		UpdateTime:  sqlcVar.UpdateTime,
+		Value:       sqlcVar.Value,
+		Enabled:     sqlcVar.Enabled,
+		Completions: sqlcVar.Completions,
+	}, nil
 }
 
 func (e *EnvService) VarRefUpdate(ctx context.Context, envName string, name string, args models.VarRefUpdateArgs) error {
