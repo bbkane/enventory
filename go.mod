@@ -3,7 +3,7 @@ module go.bbkane.com/enventory
 go 1.25.0
 
 require (
-	al.essio.dev/pkg/shellescape v1.6.0
+	al.essio.dev/pkg/shellescape v1.6.1
 	github.com/expr-lang/expr v1.17.8
 	github.com/jedib0t/go-pretty/v6 v6.8.3
 	github.com/stretchr/testify v1.12.1
@@ -14,7 +14,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.46.0
 	golang.org/x/term v0.45.0
 	gopkg.in/yaml.v3 v3.0.1
-	modernc.org/sqlite v1.57.0
+	modernc.org/sqlite v1.58.0
 )
 
 require (
@@ -50,7 +50,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/grpc v1.73.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
-	modernc.org/libc v1.74.4 // indirect
+	modernc.org/libc v1.75.6 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.11.0 // indirect
+	modernc.org/memory v1.12.1 // indirect
 )
