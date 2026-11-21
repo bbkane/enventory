@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	al.essio.dev/pkg/shellescape v1.6.1
 	github.com/expr-lang/expr v1.17.8
-	github.com/jedib0t/go-pretty/v6 v6.8.3
+	github.com/jedib0t/go-pretty/v6 v6.9.2
 	github.com/stretchr/testify v1.12.1
 	github.com/xhit/go-str2duration/v2 v2.2.0
 	go.bbkane.com/motel v0.0.2
