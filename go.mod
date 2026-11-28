@@ -4,8 +4,8 @@ go 1.26.0
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.1
-	github.com/expr-lang/expr v1.17.8
-	github.com/jedib0t/go-pretty/v6 v6.9.2
+	github.com/expr-lang/expr v1.18.1
+	github.com/jedib0t/go-pretty/v6 v6.9.3
 	github.com/stretchr/testify v1.12.1
 	github.com/xhit/go-str2duration/v2 v2.2.0
 	go.bbkane.com/motel v0.0.2
@@ -14,7 +14,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.47.0
 	golang.org/x/term v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
-	modernc.org/sqlite v1.62.0
+	modernc.org/sqlite v1.63.0
 )
 
 require (
